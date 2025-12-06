@@ -1,0 +1,26 @@
+[book]
+authors = ["Pragmatic AI Labs <info@paiml.com>"]
+language = "en"
+multilingual = false
+src = "src"
+title = "PRS Cookbook - Declarative Visualization Dashboards in Pure Rust"
+description = "Production recipes for creating visualization dashboards using the Presentar Scene Format (.prs) with Toyota Way quality principles"
+
+[build]
+build-dir = "book"
+create-missing = true
+use-default-preprocessors = true
+
+[output.html]
+default-theme = "rust"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/paiml/prs-cookbook"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/paiml/prs-cookbook/edit/main/book/{path}"
+site-url = "/prs-cookbook/"
+
+[output.html.playground]
+editable = true
+copyable = true
+copy-js = true
+runnable = false
