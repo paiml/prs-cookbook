@@ -1,0 +1,78 @@
+# PMAT TDG (Technical Debt Gradient) Rules for PRS Cookbook
+# These rules define quality thresholds for the codebase
+
+[project]
+name = "prs-cookbook"
+version = "1.0.0"
+language = "rust"
+
+[thresholds]
+# Minimum test coverage percentage
+coverage_min = 95.0
+
+# Maximum cyclomatic complexity per function
+complexity_max = 15
+
+# Maximum lines per function
+function_lines_max = 100
+
+# Maximum lines per file
+file_lines_max = 1000
+
+# Maximum depth of nesting
+nesting_depth_max = 5
+
+# Minimum documentation coverage for public items
+doc_coverage_min = 80.0
+
+[rules]
+# Deny unsafe code
+unsafe_code = "deny"
+
+# Require error handling (no unwrap in library code)
+unwrap_in_lib = "warn"
+
+# Require tests for all public functions
+public_function_tests = "warn"
+
+# Property-based testing requirements
+proptest_coverage = "suggest"
+
+[exemptions]
+# Files exempt from certain rules
+exempt_files = [
+    "benches/*.rs",      # Benchmarks can use unwrap
+    "examples/**/*.rs",  # Examples can be more permissive
+]
+
+[quality_gates]
+# Gates that must pass before merge
+pre_commit = [
+    "cargo fmt --check",
+    "cargo clippy -- -D warnings",
+    "cargo test",
+]
+
+pre_release = [
+    "cargo fmt --check",
+    "cargo clippy -- -D warnings",
+    "cargo test --all-features",
+    "cargo llvm-cov --min-coverage 95",
+]
+
+[metrics]
+# Track these metrics over time
+track = [
+    "test_count",
+    "coverage_percentage",
+    "clippy_warnings",
+    "doc_coverage",
+    "dependency_count",
+]
+
+[iiur]
+# IIUR Compliance checks
+isolated = true       # Recipes use tempdir
+idempotent = true     # Same input = same output
+useful = true         # Solves real problems
+reproducible = true   # Cross-platform, pinned deps

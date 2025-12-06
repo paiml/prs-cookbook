@@ -61,7 +61,7 @@ widgets:
     println!("Filter expressions:");
     for widget in &scene.widgets {
         if let Some(data) = widget.config.get("data") {
-            if data.as_str().map(|s| s.contains("filter")).unwrap_or(false) {
+            if data.as_str().is_some_and(|s| s.contains("filter")) {
                 println!("  {}: {:?}", widget.id, data);
             }
         }

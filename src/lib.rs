@@ -30,13 +30,19 @@ pub mod context;
 pub mod error;
 pub mod scene;
 
-pub use context::RecipeContext;
+pub use context::{
+    generate_test_data, generate_test_scene, hash_name_to_seed, MetricValue, RecipeContext,
+    RecipeMetadata,
+};
 pub use error::{Error, Result};
 pub use scene::*;
 
 /// Prelude module for convenient imports
 pub mod prelude {
-    pub use crate::context::RecipeContext;
+    pub use crate::context::{
+        generate_test_data, generate_test_scene, hash_name_to_seed, MetricValue, RecipeContext,
+        RecipeMetadata,
+    };
     pub use crate::error::{Error, Result};
     pub use crate::scene::*;
 }

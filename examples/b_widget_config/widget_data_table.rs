@@ -67,10 +67,7 @@ widgets:
     println!("Data table widget:");
     for widget in &scene.widgets {
         let columns = widget.config.get("columns");
-        let count = columns
-            .and_then(|c| c.as_sequence())
-            .map(|s| s.len())
-            .unwrap_or(0);
+        let count = columns.and_then(|c| c.as_sequence()).map_or(0, Vec::len);
         println!("  {}: {} columns", widget.id, count);
     }
 

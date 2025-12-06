@@ -65,11 +65,7 @@ widgets:
             println!("  {}: {:?}", widget.id, value);
         }
         if let Some(content) = widget.config.get("content") {
-            if content
-                .as_str()
-                .map(|s| s.contains("select"))
-                .unwrap_or(false)
-            {
+            if content.as_str().is_some_and(|s| s.contains("select")) {
                 println!("  {}: {:?}", widget.id, content);
             }
         }

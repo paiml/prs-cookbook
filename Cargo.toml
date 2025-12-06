@@ -6,8 +6,51 @@ rust-version = "1.75"
 license = "MIT"
 description = "Cookbook examples for Presentar Scene Format (.prs) - Isolated, Idempotent, Useful, and Reproducible recipes"
 repository = "https://github.com/paiml/prs-cookbook"
-keywords = ["presentar", "visualization", "wasm", "declarative-ui"]
-categories = ["visualization", "wasm"]
+keywords = ["presentar", "visualization", "wasm", "declarative-ui", "rust"]
+categories = ["visualization", "wasm", "development-tools"]
+
+[lints.rust]
+unsafe_code = "deny"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+trivial_casts = "warn"
+trivial_numeric_casts = "warn"
+unused_import_braces = "warn"
+unused_lifetimes = "warn"
+unused_qualifications = "warn"
+unused_variables = "warn"
+dead_code = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+cast_precision_loss = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_possible_wrap = "allow"
+similar_names = "allow"
+many_single_char_names = "allow"
+doc_markdown = "allow"
+unreadable_literal = "allow"
+uninlined_format_args = "allow"
+unnecessary_wraps = "allow"
+items_after_statements = "allow"
+unused_self = "allow"
+match_same_arms = "allow"
+struct_field_names = "allow"
+too_many_arguments = "allow"
+assigning_clones = "allow"
+format_push_string = "allow"
+struct_excessive_bools = "allow"
+too_many_lines = "allow"
+enum_variant_names = "allow"
+no_effect_underscore_binding = "allow"
+# Allow debug formatting in examples for educational purposes
+unnecessary_debug_formatting = "allow"
 
 [features]
 default = []
@@ -23,14 +66,28 @@ serde_json = "1.0"
 thiserror = "2.0"
 tempfile = "3.14"
 
+# Recipe infrastructure
+rand = { version = "0.8", features = ["std_rng"] }
+blake3 = "1"
+
 # Optional dependencies
 wasm-bindgen = { version = "0.2", optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
 clap = { version = "4.5", features = ["derive"], optional = true }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = ["Performance", "Window", "console"] }
+
 [dev-dependencies]
 proptest = "1.5"
 pretty_assertions = "1.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "parsing"
+harness = false
 
 [[example]]
 name = "create_minimal_scene"

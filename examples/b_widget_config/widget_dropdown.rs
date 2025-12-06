@@ -66,10 +66,7 @@ widgets:
     for widget in &scene.widgets {
         let label = widget.config.get("label").map(|v| v.as_str().unwrap_or(""));
         let options = widget.config.get("options");
-        let count = options
-            .and_then(|o| o.as_sequence())
-            .map(|s| s.len())
-            .unwrap_or(0);
+        let count = options.and_then(|o| o.as_sequence()).map_or(0, Vec::len);
         println!("  {}: {:?} ({} options)", widget.id, label, count);
     }
 

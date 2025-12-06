@@ -288,7 +288,7 @@ impl Source {
     pub fn primary(&self) -> &str {
         match self {
             Source::Single { source } => source,
-            Source::Multiple { sources } => sources.first().map(|s| s.as_str()).unwrap_or(""),
+            Source::Multiple { sources } => sources.first().map_or("", String::as_str),
         }
     }
 
@@ -296,7 +296,7 @@ impl Source {
     pub fn all(&self) -> Vec<&str> {
         match self {
             Source::Single { source } => vec![source],
-            Source::Multiple { sources } => sources.iter().map(|s| s.as_str()).collect(),
+            Source::Multiple { sources } => sources.iter().map(String::as_str).collect(),
         }
     }
 }
