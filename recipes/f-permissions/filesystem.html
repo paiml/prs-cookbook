@@ -180,6 +180,93 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="filesystem"><a class="header" href="#filesystem">Filesystem</a></h1>
+<p>Grant filesystem access to specific paths.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - filesystem permissions are per-scene</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same permissions → same access</td></tr>
+<tr><td>Usefulness</td><td>Local data files, output directories</td></tr>
+<tr><td>Reproducibility</td><td>Predictable file access</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;permission_filesystem&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;filesystem-permission-demo&quot;
+
+resources:
+  datasets:
+    data:
+      type: csv
+      source: &quot;./data/input.csv&quot;
+
+permissions:
+  filesystem:
+    - &quot;./data/*&quot;
+    - &quot;./output/*&quot;
+  network: []
+  clipboard: false
+
+layout:
+  type: flex
+
+widgets:
+  - id: file-browser
+    type: file_browser
+    config:
+      root: &quot;./data&quot;
+      allowed_extensions:
+        - &quot;.csv&quot;
+        - &quot;.json&quot;
+        - &quot;.parquet&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<pre><code class="language-yaml">permissions:
+  filesystem:
+    - &quot;./data/*&quot;    # Read access
+    - &quot;./output/*&quot;  # Write access
+</code></pre>
+<h2 id="pattern-syntax"><a class="header" href="#pattern-syntax">Pattern Syntax</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody>
+<tr><td><code>./data/*</code></td><td>All files in ./data</td></tr>
+<tr><td><code>./data/**/*</code></td><td>Recursive subdirectories</td></tr>
+<tr><td><code>./data/*.csv</code></td><td>Only CSV files</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example permission_filesystem
+</code></pre>
+<h2 id="security-best-practices"><a class="header" href="#security-best-practices">Security Best Practices</a></h2>
+<pre><code class="language-yaml"># Good: Limited to specific directories
+filesystem:
+  - &quot;./data/*&quot;
+  - &quot;./output/*&quot;
+
+# Bad: Too broad
+filesystem:
+  - &quot;./*&quot;
+  - &quot;/*&quot;
+</code></pre>
+<h2 id="read-vs-write"><a class="header" href="#read-vs-write">Read vs Write</a></h2>
+<p>Pattern permissions allow both read and write. Use separate directories for input and output:</p>
+<pre><code class="language-yaml">filesystem:
+  - &quot;./input/*&quot;   # Source data (read)
+  - &quot;./output/*&quot;  # Results (write)
+</code></pre>
 
                     </main>
 

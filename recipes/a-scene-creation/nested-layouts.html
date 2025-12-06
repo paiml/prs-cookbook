@@ -180,6 +180,141 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="nested-layouts"><a class="header" href="#nested-layouts">Nested Layouts</a></h1>
+<p>Compose multiple layout types for complex UI structures.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Complex multi-panel interfaces</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_nested_layouts&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;nested-layouts-demo&quot;
+  title: &quot;Nested Layouts Demo&quot;
+
+layout:
+  type: grid
+  columns: 2
+  rows: 1
+  gap: 16
+
+widgets:
+  - id: left-panel
+    type: container
+    position: { row: 0, col: 0 }
+    config:
+      layout:
+        type: flex
+        direction: column
+        gap: 8
+      children:
+        - type: markdown
+          content: &quot;Left Panel Header&quot;
+        - type: textbox
+          label: &quot;Search&quot;
+
+  - id: right-panel
+    type: container
+    position: { row: 0, col: 1 }
+    config:
+      layout:
+        type: flex
+        direction: column
+        gap: 8
+      children:
+        - type: markdown
+          content: &quot;Right Panel&quot;
+        - type: data_table
+          columns: [&quot;Name&quot;, &quot;Value&quot;]
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(&quot;Nested layout structure:&quot;);
+    println!(&quot;  Outer: {:?}&quot;, scene.layout.layout_type);
+    println!(
+        &quot;  Grid: {}x{}&quot;,
+        scene.layout.columns.unwrap_or(0),
+        scene.layout.rows.unwrap_or(0)
+    );
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts"><a class="header" href="#key-concepts">Key Concepts</a></h2>
+<h3 id="container-widget"><a class="header" href="#container-widget">Container Widget</a></h3>
+<p>The <code>container</code> widget type allows nesting layouts:</p>
+<pre><code class="language-yaml">- id: panel
+  type: container
+  config:
+    layout:
+      type: flex        # Nested layout type
+      direction: column
+    children:           # Child widgets
+      - type: markdown
+        content: &quot;...&quot;
+</code></pre>
+<h3 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h3>
+<h4 id="sidebar--main-content"><a class="header" href="#sidebar--main-content">Sidebar + Main Content</a></h4>
+<pre><code class="language-yaml">layout:
+  type: grid
+  columns: 2
+
+widgets:
+  - id: sidebar
+    type: container
+    position: { col: 0 }
+    config:
+      layout: { type: flex, direction: column }
+
+  - id: main
+    type: container
+    position: { col: 1 }
+    config:
+      layout: { type: flex, direction: column }
+</code></pre>
+<h4 id="header--body--footer"><a class="header" href="#header--body--footer">Header + Body + Footer</a></h4>
+<pre><code class="language-yaml">layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: header
+    type: container
+    config:
+      layout: { type: flex, direction: row }
+
+  - id: body
+    type: container
+    config:
+      layout: { type: grid, columns: 3 }
+
+  - id: footer
+    type: container
+    config:
+      layout: { type: flex, direction: row }
+</code></pre>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_nested_layouts
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<ul>
+<li>Use grid for the outer structure</li>
+<li>Use flex for inner content flow</li>
+<li>Keep nesting depth shallow (max 2-3 levels)</li>
+<li>Name containers descriptively (<code>sidebar</code>, <code>main-content</code>)</li>
+</ul>
 
                     </main>
 

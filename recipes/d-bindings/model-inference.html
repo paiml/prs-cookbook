@@ -180,6 +180,120 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="model-inference"><a class="header" href="#model-inference">Model Inference</a></h1>
+<p>Trigger model inference on user input.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - inference is per-model</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Real-time ML predictions</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic model execution</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_model_inference&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;inference-binding-demo&quot;
+
+resources:
+  models:
+    sentiment:
+      type: apr
+      source: &quot;./models/sentiment.apr&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: text-input
+    type: textbox
+    config:
+      label: &quot;Enter text for analysis&quot;
+
+  - id: sentiment-gauge
+    type: gauge
+    config:
+      title: &quot;Sentiment&quot;
+      min: -1
+      max: 1
+      value: &quot;{{ inference.sentiment.score }}&quot;
+
+  - id: confidence
+    type: markdown
+    config:
+      content: &quot;Confidence: {{ inference.sentiment.confidence | percentage }}&quot;
+
+bindings:
+  - trigger: &quot;text-input.change&quot;
+    debounce_ms: 500
+    actions:
+      - target: inference.sentiment
+        input: &quot;{{ text-input.value }}&quot;
+      - target: sentiment-gauge
+        action: refresh
+      - target: confidence
+        action: refresh
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<h3 id="inference-action"><a class="header" href="#inference-action">Inference Action</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: inference.model-name  # models.&lt;name&gt;
+    input: &quot;{{ widget.value }}&quot;   # Input data
+</code></pre>
+<h3 id="accessing-results"><a class="header" href="#accessing-results">Accessing Results</a></h3>
+<pre><code class="language-yaml"># In widget config
+value: &quot;{{ inference.sentiment.score }}&quot;
+content: &quot;{{ inference.sentiment.confidence }}&quot;
+</code></pre>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_model_inference
+</code></pre>
+<h2 id="inference-flow"><a class="header" href="#inference-flow">Inference Flow</a></h2>
+<pre><code>1. User types text
+2. Debounce waits 500ms
+3. Inference action runs model
+4. Results stored in inference.sentiment.*
+5. Dependent widgets refresh
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="always-debounce"><a class="header" href="#always-debounce">Always Debounce</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;input.change&quot;
+    debounce_ms: 500  # Prevent excessive inference
+    actions:
+      - target: inference.model
+</code></pre>
+<h3 id="chain-with-refresh"><a class="header" href="#chain-with-refresh">Chain with Refresh</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: inference.sentiment   # Run inference
+  - target: result-gauge          # Then refresh displays
+    action: refresh
+</code></pre>
+<h3 id="display-loading-state"><a class="header" href="#display-loading-state">Display Loading State</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: status
+    action: update
+    params: { content: &quot;Analyzing...&quot; }
+  - target: inference.sentiment
+  - target: status
+    action: update
+    params: { content: &quot;Done&quot; }
+</code></pre>
 
                     </main>
 

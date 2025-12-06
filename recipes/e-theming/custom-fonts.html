@@ -180,6 +180,83 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="custom-fonts"><a class="header" href="#custom-fonts">Custom Fonts</a></h1>
+<p>Configure custom typography for headings and body text.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - font config is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same fonts → same typography</td></tr>
+<tr><td>Usefulness</td><td>Brand typography, readability</td></tr>
+<tr><td>Reproducibility</td><td>Consistent font rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_custom_fonts&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;custom-fonts-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;Custom Fonts Demo&quot;
+
+theme:
+  preset: &quot;light&quot;
+  fonts:
+    heading: &quot;Inter, system-ui, sans-serif&quot;
+    body: &quot;Source Sans Pro, system-ui, sans-serif&quot;
+    mono: &quot;JetBrains Mono, Fira Code, monospace&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  fonts:
+    heading: &quot;Inter, system-ui, sans-serif&quot;
+    body: &quot;Source Sans Pro, system-ui, sans-serif&quot;
+    mono: &quot;JetBrains Mono, Fira Code, monospace&quot;
+</code></pre>
+<h2 id="font-tokens"><a class="header" href="#font-tokens">Font Tokens</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Usage</th></tr></thead><tbody>
+<tr><td><code>heading</code></td><td>H1-H6 headings</td></tr>
+<tr><td><code>body</code></td><td>Paragraphs, labels, inputs</td></tr>
+<tr><td><code>mono</code></td><td>Code blocks, tables</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_custom_fonts
+</code></pre>
+<h2 id="font-stack-best-practices"><a class="header" href="#font-stack-best-practices">Font Stack Best Practices</a></h2>
+<p>Always include fallbacks:</p>
+<pre><code class="language-yaml"># Good: Multiple fallbacks
+heading: &quot;Inter, system-ui, sans-serif&quot;
+
+# Bad: No fallbacks
+heading: &quot;CustomFont&quot;
+</code></pre>
+<h2 id="system-font-stacks"><a class="header" href="#system-font-stacks">System Font Stacks</a></h2>
+<pre><code class="language-yaml"># Modern system fonts
+fonts:
+  heading: &quot;system-ui, -apple-system, BlinkMacSystemFont, sans-serif&quot;
+  body: &quot;system-ui, sans-serif&quot;
+  mono: &quot;ui-monospace, SFMono-Regular, monospace&quot;
+</code></pre>
 
                     </main>
 

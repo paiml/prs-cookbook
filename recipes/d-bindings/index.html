@@ -180,7 +180,50 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
-
+<p>Binding recipes for connecting widgets and triggering actions.</p>
+<h2 id="binding-types"><a class="header" href="#binding-types">Binding Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Binding</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="./simple-update.html">Simple Update</a></td><td>Basic widget refresh</td><td><code>trigger</code>, <code>actions</code></td></tr>
+<tr><td><a href="./debounced.html">Debounced</a></td><td>Rate-limited updates</td><td><code>debounce_ms</code></td></tr>
+<tr><td><a href="./model-inference.html">Model Inference</a></td><td>ML predictions</td><td><code>inference.*</code> target</td></tr>
+<tr><td><a href="./chain-actions.html">Chain Actions</a></td><td>Sequential actions</td><td>Multiple actions</td></tr>
+<tr><td><a href="./conditional.html">Conditional</a></td><td>State-based logic</td><td><code>condition</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<p>All binding recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Bindings are independently testable</li>
+<li><strong>Idempotent</strong>: Same trigger → same actions</li>
+<li><strong>Useful</strong>: Real-world reactive patterns</li>
+<li><strong>Reproducible</strong>: Deterministic event handling</li>
+</ul>
+<h2 id="binding-structure"><a class="header" href="#binding-structure">Binding Structure</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;widget-id.event&quot;   # Event source
+    debounce_ms: 300             # Optional debounce
+    condition: &quot;{{ expr }}&quot;      # Optional condition
+    actions:                     # Action list
+      - target: target-widget
+        action: refresh
+        input: &quot;{{ value }}&quot;
+</code></pre>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Widgets</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>All inputs</td><td>Value changed</td></tr>
+<tr><td><code>click</code></td><td>Button</td><td>Button clicked</td></tr>
+<tr><td><code>submit</code></td><td>Form</td><td>Form submitted</td></tr>
+<tr><td><code>select</code></td><td>Dropdown, Table</td><td>Item selected</td></tr>
+</tbody></table>
+</div>
+<h2 id="actions"><a class="header" href="#actions">Actions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>refresh</code></td><td>Re-render widget</td></tr>
+<tr><td><code>update</code></td><td>Update widget config</td></tr>
+<tr><td><code>show</code></td><td>Make widget visible</td></tr>
+<tr><td><code>hide</code></td><td>Hide widget</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

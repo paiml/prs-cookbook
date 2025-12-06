@@ -180,6 +180,115 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="format"><a class="header" href="#format">Format</a></h1>
+<p>Use <code>format()</code> and <code>join()</code> transforms for string formatting.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same format → same output</td></tr>
+<tr><td>Usefulness</td><td>Display formatting, localization</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic formatting</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_format&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-format-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: currency
+    type: markdown
+    config:
+      content: &quot;Price: {{ state.price | format('$,.2f') }}&quot;
+
+  - id: percentage
+    type: markdown
+    config:
+      content: &quot;Discount: {{ state.discount | percentage }}%&quot;
+
+  - id: date-format
+    type: markdown
+    config:
+      content: &quot;Date: {{ state.timestamp | date('MMMM D, YYYY') }}&quot;
+
+  - id: list-join
+    type: markdown
+    config:
+      content: &quot;Tags: {{ state.tags | join(', ') }}&quot;
+
+  - id: truncate
+    type: markdown
+    config:
+      content: &quot;{{ state.description | truncate(100) }}...&quot;
+
+  - id: uppercase
+    type: markdown
+    config:
+      content: &quot;{{ state.title | uppercase }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="format-functions"><a class="header" href="#format-functions">Format Functions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>format('spec')</code></td><td>Number formatting</td></tr>
+<tr><td><code>percentage</code></td><td>As percentage (0-100)</td></tr>
+<tr><td><code>date('pattern')</code></td><td>Date formatting</td></tr>
+<tr><td><code>join('sep')</code></td><td>Join array</td></tr>
+<tr><td><code>truncate(n)</code></td><td>Limit characters</td></tr>
+<tr><td><code>uppercase</code></td><td>Uppercase</td></tr>
+<tr><td><code>lowercase</code></td><td>Lowercase</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_format
+</code></pre>
+<h2 id="number-formatting"><a class="header" href="#number-formatting">Number Formatting</a></h2>
+<pre><code class="language-yaml"># Currency
+&quot;{{ price | format('$,.2f') }}&quot;  # $1,234.56
+
+# Percentage
+&quot;{{ ratio | percentage }}&quot;  # 75%
+
+# Fixed decimals
+&quot;{{ value | format('.3f') }}&quot;  # 1.234
+</code></pre>
+<h2 id="date-formatting"><a class="header" href="#date-formatting">Date Formatting</a></h2>
+<pre><code class="language-yaml"># Full date
+&quot;{{ date | date('MMMM D, YYYY') }}&quot;  # January 15, 2024
+
+# Short date
+&quot;{{ date | date('MM/DD/YY') }}&quot;  # 01/15/24
+
+# ISO
+&quot;{{ date | date('YYYY-MM-DD') }}&quot;  # 2024-01-15
+</code></pre>
+<h2 id="string-transforms"><a class="header" href="#string-transforms">String Transforms</a></h2>
+<pre><code class="language-yaml"># Join array
+&quot;{{ tags | join(', ') }}&quot;  # &quot;tag1, tag2, tag3&quot;
+
+# Truncate
+&quot;{{ text | truncate(50) }}&quot;  # &quot;First 50 characters...&quot;
+
+# Case
+&quot;{{ title | uppercase }}&quot;
+&quot;{{ title | lowercase }}&quot;
+</code></pre>
 
                     </main>
 

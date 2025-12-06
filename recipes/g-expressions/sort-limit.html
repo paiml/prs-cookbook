@@ -180,6 +180,97 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="sort--limit"><a class="header" href="#sort--limit">Sort &amp; Limit</a></h1>
+<p>Use <code>sort()</code> and <code>limit()</code> transforms for data ordering and pagination.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same params → same order</td></tr>
+<tr><td>Usefulness</td><td>Top-N queries, pagination</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic ordering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_sort_limit&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-sort-limit-demo&quot;
+
+resources:
+  datasets:
+    products:
+      type: parquet
+      source: &quot;./data/products.parquet&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: top-sellers
+    type: data_table
+    config:
+      title: &quot;Top 10 Best Sellers&quot;
+      data: &quot;{{ datasets.products | sort('sales_count desc') | limit(10) }}&quot;
+
+  - id: cheapest
+    type: data_table
+    config:
+      title: &quot;5 Cheapest Products&quot;
+      data: &quot;{{ datasets.products | sort('price asc') | limit(5) }}&quot;
+
+  - id: newest
+    type: data_table
+    config:
+      title: &quot;Recently Added&quot;
+      data: &quot;{{ datasets.products | sort('created_at desc') | limit(20) }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<pre><code class="language-yaml"># Sort ascending
+&quot;{{ data | sort('field asc') }}&quot;
+
+# Sort descending
+&quot;{{ data | sort('field desc') }}&quot;
+
+# Limit rows
+&quot;{{ data | limit(10) }}&quot;
+
+# Combined
+&quot;{{ data | sort('field desc') | limit(10) }}&quot;
+</code></pre>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_sort_limit
+</code></pre>
+<h2 id="use-cases"><a class="header" href="#use-cases">Use Cases</a></h2>
+<h3 id="top-n"><a class="header" href="#top-n">Top N</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | sort('revenue desc') | limit(10) }}&quot;
+</code></pre>
+<h3 id="most-recent"><a class="header" href="#most-recent">Most Recent</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ orders | sort('date desc') | limit(5) }}&quot;
+</code></pre>
+<h3 id="pagination"><a class="header" href="#pagination">Pagination</a></h3>
+<pre><code class="language-yaml"># Page 1
+data: &quot;{{ items | limit(20) }}&quot;
+
+# Page 2 (with offset)
+data: &quot;{{ items | offset(20) | limit(20) }}&quot;
+</code></pre>
+<h3 id="multi-field-sort"><a class="header" href="#multi-field-sort">Multi-field Sort</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ products | sort('category asc, price desc') }}&quot;
+</code></pre>
 
                     </main>
 

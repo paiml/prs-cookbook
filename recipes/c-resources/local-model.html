@@ -180,6 +180,93 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="local-model"><a class="header" href="#local-model">Local Model</a></h1>
+<p>Reference local <code>.apr</code> model files in scene resources.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - model loaded independently</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same file → same model</td></tr>
+<tr><td>Usefulness</td><td>Local ML inference without network</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic model loading</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;resource_local_model&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;local-model-demo&quot;
+
+resources:
+  models:
+    sentiment:
+      type: apr
+      source: &quot;./models/sentiment.apr&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: input
+    type: textbox
+    config:
+      label: &quot;Text to analyze&quot;
+
+  - id: result
+    type: gauge
+    config:
+      title: &quot;Sentiment Score&quot;
+      min: 0
+      max: 100
+
+bindings:
+  - trigger: &quot;input.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: inference.sentiment
+        input: &quot;{{ input.value }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options"><a class="header" href="#configuration-options">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>enum</td><td>Yes</td><td>Model format: <code>apr</code>, <code>onnx</code></td></tr>
+<tr><td><code>source</code></td><td>string</td><td>Yes</td><td>Path to model file</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td>No</td><td>Optional BLAKE3 hash</td></tr>
+</tbody></table>
+</div>
+<h2 id="model-types"><a class="header" href="#model-types">Model Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>apr</code></td><td>APR format (Presentar native)</td></tr>
+<tr><td><code>onnx</code></td><td>ONNX format for interop</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example resource_local_model
+</code></pre>
+<h2 id="directory-structure"><a class="header" href="#directory-structure">Directory Structure</a></h2>
+<pre><code>my-scene/
+├── scene.prs
+└── models/
+    └── sentiment.apr
+</code></pre>
+<h2 id="inference-binding"><a class="header" href="#inference-binding">Inference Binding</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;input.change&quot;
+    actions:
+      - target: inference.sentiment  # models.&lt;name&gt;
+        input: &quot;{{ input.value }}&quot;
+</code></pre>
 
                     </main>
 

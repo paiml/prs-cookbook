@@ -180,6 +180,93 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="filter"><a class="header" href="#filter">Filter</a></h1>
+<p>Use <code>filter()</code> transform to filter data based on conditions.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same condition → same rows</td></tr>
+<tr><td>Usefulness</td><td>Data filtering, search</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic filtering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_filter&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-filter-demo&quot;
+
+resources:
+  datasets:
+    sales:
+      type: parquet
+      source: &quot;./data/sales.parquet&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: high-value
+    type: data_table
+    config:
+      title: &quot;High Value Sales (&gt; $1000)&quot;
+      data: &quot;{{ datasets.sales | filter('amount &gt; 1000') }}&quot;
+
+  - id: recent
+    type: data_table
+    config:
+      title: &quot;Recent Sales (last 7 days)&quot;
+      data: &quot;{{ datasets.sales | filter('date &gt;= now() - 7d') }}&quot;
+
+  - id: category-filter
+    type: data_table
+    config:
+      title: &quot;Electronics Only&quot;
+      data: &quot;{{ datasets.sales | filter('category == \&quot;electronics\&quot;') }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<pre><code class="language-yaml">&quot;{{ source | filter('condition') }}&quot;
+</code></pre>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>==</code></td><td>Equal</td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td></tr>
+<tr><td><code>&gt;</code>, <code>&gt;=</code></td><td>Greater than</td></tr>
+<tr><td><code>&lt;</code>, <code>&lt;=</code></td><td>Less than</td></tr>
+<tr><td><code>&amp;&amp;</code></td><td>AND</td></tr>
+<tr><td>`</td><td></td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_filter
+</code></pre>
+<h2 id="use-cases"><a class="header" href="#use-cases">Use Cases</a></h2>
+<h3 id="numeric-comparison"><a class="header" href="#numeric-comparison">Numeric Comparison</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | filter('amount &gt; 1000') }}&quot;
+</code></pre>
+<h3 id="string-match"><a class="header" href="#string-match">String Match</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ users | filter('status == \&quot;active\&quot;') }}&quot;
+</code></pre>
+<h3 id="date-filter"><a class="header" href="#date-filter">Date Filter</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ orders | filter('date &gt;= now() - 7d') }}&quot;
+</code></pre>
+<h3 id="combined-conditions"><a class="header" href="#combined-conditions">Combined Conditions</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ products | filter('price &lt; 100 &amp;&amp; in_stock == true') }}&quot;
+</code></pre>
 
                     </main>
 

@@ -180,7 +180,48 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
-
+<p>Expression recipes for data transformation and formatting.</p>
+<h2 id="expression-types"><a class="header" href="#expression-types">Expression Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Expression</th><th>Purpose</th><th>Key Transforms</th></tr></thead><tbody>
+<tr><td><a href="./select.html">Select</a></td><td>Field extraction</td><td><code>select('field')</code></td></tr>
+<tr><td><a href="./filter.html">Filter</a></td><td>Row filtering</td><td><code>filter('condition')</code></td></tr>
+<tr><td><a href="./sort-limit.html">Sort &amp; Limit</a></td><td>Ordering</td><td><code>sort()</code>, <code>limit()</code></td></tr>
+<tr><td><a href="./aggregation.html">Aggregation</a></td><td>Statistics</td><td><code>sum()</code>, <code>mean()</code>, <code>count()</code></td></tr>
+<tr><td><a href="./format.html">Format</a></td><td>Display formatting</td><td><code>format()</code>, <code>date()</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<p>All expression recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Expressions don't mutate source data</li>
+<li><strong>Idempotent</strong>: Same input → same output</li>
+<li><strong>Useful</strong>: Real-world data transformations</li>
+<li><strong>Reproducible</strong>: Deterministic evaluation</li>
+</ul>
+<h2 id="expression-syntax"><a class="header" href="#expression-syntax">Expression Syntax</a></h2>
+<pre><code class="language-yaml">&quot;{{ source | transform1 | transform2 }}&quot;
+</code></pre>
+<h2 id="pipe-chaining"><a class="header" href="#pipe-chaining">Pipe Chaining</a></h2>
+<p>Transforms are applied left-to-right:</p>
+<pre><code class="language-yaml">&quot;{{ data | filter('active') | sort('name') | limit(10) }}&quot;
+</code></pre>
+<h2 id="data-sources"><a class="header" href="#data-sources">Data Sources</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Source</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>datasets.name</code></td><td>Dataset resource</td></tr>
+<tr><td><code>inference.model</code></td><td>Model output</td></tr>
+<tr><td><code>state.field</code></td><td>Widget state</td></tr>
+<tr><td><code>widget.value</code></td><td>Widget value</td></tr>
+</tbody></table>
+</div>
+<h2 id="common-transforms"><a class="header" href="#common-transforms">Common Transforms</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Transform</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>select('field')</code></td><td>Extract field</td></tr>
+<tr><td><code>filter('cond')</code></td><td>Filter rows</td></tr>
+<tr><td><code>sort('field dir')</code></td><td>Sort rows</td></tr>
+<tr><td><code>limit(n)</code></td><td>Limit rows</td></tr>
+<tr><td><code>format('spec')</code></td><td>Format value</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

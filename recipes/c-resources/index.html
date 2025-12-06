@@ -180,6 +180,45 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<p>Resource configuration recipes for models and datasets.</p>
+<h2 id="resource-types"><a class="header" href="#resource-types">Resource Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Resource</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="./local-model.html">Local Model</a></td><td>Local <code>.apr</code> files</td><td><code>type</code>, <code>source</code></td></tr>
+<tr><td><a href="./remote-model.html">Remote Model</a></td><td>CDN-hosted models</td><td><code>hash</code>, <code>size_bytes</code></td></tr>
+<tr><td><a href="./dataset.html">Dataset</a></td><td>Data files</td><td><code>transforms</code></td></tr>
+<tr><td><a href="./fallback-sources.html">Fallback Sources</a></td><td>Resilient loading</td><td><code>sources</code> array</td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<p>All resource recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Resources are independently loadable</li>
+<li><strong>Idempotent</strong>: Same resource config loads same data</li>
+<li><strong>Useful</strong>: Real-world ML and data scenarios</li>
+<li><strong>Reproducible</strong>: Hash verification ensures integrity</li>
+</ul>
+<h2 id="resource-structure"><a class="header" href="#resource-structure">Resource Structure</a></h2>
+<pre><code class="language-yaml">resources:
+  models:
+    model-name:
+      type: apr          # Model format
+      source: &quot;./path&quot;   # File path or URL
+      hash: &quot;blake3:...&quot; # Required for remote
+
+  datasets:
+    dataset-name:
+      type: parquet      # csv, parquet, ald
+      source: &quot;./path&quot;
+      transforms: [...]  # Optional transforms
+</code></pre>
+<h2 id="security"><a class="header" href="#security">Security</a></h2>
+<p>Remote resources <strong>require</strong> BLAKE3 hash verification:</p>
+<pre><code class="language-yaml">models:
+  classifier:
+    source: &quot;https://cdn.example.com/model.apr&quot;
+    hash: &quot;blake3:a1b2c3...&quot;  # REQUIRED
+</code></pre>
+<p>This prevents supply-chain attacks and ensures reproducibility.</p>
 
                     </main>
 

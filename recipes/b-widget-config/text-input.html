@@ -180,6 +180,89 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="text-input"><a class="header" href="#text-input">Text Input</a></h1>
+<p>Configure text input widgets with validation and placeholder text.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Forms, search boxes, user input</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_text_input&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;text-input-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: username
+    type: textbox
+    config:
+      label: &quot;Username&quot;
+      placeholder: &quot;Enter your username...&quot;
+      max_length: 50
+
+  - id: email
+    type: textbox
+    config:
+      label: &quot;Email&quot;
+      placeholder: &quot;user@example.com&quot;
+      max_length: 100
+
+  - id: bio
+    type: textbox
+    config:
+      label: &quot;Bio&quot;
+      placeholder: &quot;Tell us about yourself...&quot;
+      max_length: 500
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options"><a class="header" href="#configuration-options">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>string</td><td>No</td><td>Label displayed above input</td></tr>
+<tr><td><code>placeholder</code></td><td>string</td><td>No</td><td>Hint text when empty</td></tr>
+<tr><td><code>max_length</code></td><td>u32</td><td>No</td><td>Maximum character count</td></tr>
+<tr><td><code>default</code></td><td>string</td><td>No</td><td>Initial value</td></tr>
+<tr><td><code>disabled</code></td><td>bool</td><td>No</td><td>Disable user interaction</td></tr>
+<tr><td><code>required</code></td><td>bool</td><td>No</td><td>Mark as required field</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_text_input
+</code></pre>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Payload</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td><code>{ value: string }</code></td><td>Text changed</td></tr>
+<tr><td><code>focus</code></td><td><code>{}</code></td><td>Input focused</td></tr>
+<tr><td><code>blur</code></td><td><code>{ value: string }</code></td><td>Input unfocused</td></tr>
+</tbody></table>
+</div>
+<h2 id="binding-example"><a class="header" href="#binding-example">Binding Example</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;username.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: validation
+        action: refresh
+</code></pre>
 
                     </main>
 

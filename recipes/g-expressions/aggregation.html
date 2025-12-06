@@ -180,6 +180,97 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="aggregation"><a class="header" href="#aggregation">Aggregation</a></h1>
+<p>Use <code>sum()</code>, <code>mean()</code>, <code>count()</code> transforms for data aggregation.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same data → same result</td></tr>
+<tr><td>Usefulness</td><td>Statistics, summaries</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic aggregation</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_aggregation&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-aggregation-demo&quot;
+
+resources:
+  datasets:
+    orders:
+      type: parquet
+      source: &quot;./data/orders.parquet&quot;
+
+layout:
+  type: grid
+  columns: 2
+  rows: 2
+  gap: 16
+
+widgets:
+  - id: total-revenue
+    type: markdown
+    position: { row: 0, col: 0 }
+    config:
+      content: &quot;Total Revenue: ${{ datasets.orders | sum('amount') | format(',.2f') }}&quot;
+
+  - id: avg-order
+    type: markdown
+    position: { row: 0, col: 1 }
+    config:
+      content: &quot;Avg Order: ${{ datasets.orders | mean('amount') | format(',.2f') }}&quot;
+
+  - id: order-count
+    type: markdown
+    position: { row: 1, col: 0 }
+    config:
+      content: &quot;Total Orders: {{ datasets.orders | count() }}&quot;
+
+  - id: unique-customers
+    type: markdown
+    position: { row: 1, col: 1 }
+    config:
+      content: &quot;Unique Customers: {{ datasets.orders | count_distinct('customer_id') }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="aggregation-functions"><a class="header" href="#aggregation-functions">Aggregation Functions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>sum('field')</code></td><td>Sum of values</td></tr>
+<tr><td><code>mean('field')</code></td><td>Average</td></tr>
+<tr><td><code>count()</code></td><td>Row count</td></tr>
+<tr><td><code>count_distinct('field')</code></td><td>Unique values</td></tr>
+<tr><td><code>min('field')</code></td><td>Minimum value</td></tr>
+<tr><td><code>max('field')</code></td><td>Maximum value</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_aggregation
+</code></pre>
+<h2 id="use-cases"><a class="header" href="#use-cases">Use Cases</a></h2>
+<h3 id="total"><a class="header" href="#total">Total</a></h3>
+<pre><code class="language-yaml">content: &quot;Total: {{ orders | sum('amount') }}&quot;
+</code></pre>
+<h3 id="average"><a class="header" href="#average">Average</a></h3>
+<pre><code class="language-yaml">content: &quot;Average: {{ scores | mean('value') }}&quot;
+</code></pre>
+<h3 id="count"><a class="header" href="#count">Count</a></h3>
+<pre><code class="language-yaml">content: &quot;Items: {{ items | count() }}&quot;
+</code></pre>
+<h3 id="group-by"><a class="header" href="#group-by">Group By</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | group_by('category') | sum('revenue') }}&quot;
+</code></pre>
 
                     </main>
 

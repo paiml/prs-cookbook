@@ -180,6 +180,96 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="flex-layout"><a class="header" href="#flex-layout">Flex Layout</a></h1>
+<p>Create scenes with flexbox layout for responsive, flowing interfaces.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Forms, lists, and flowing content</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_flex_layout&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;flex-demo&quot;
+  title: &quot;Flexbox Layout Demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 24
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Flex Layout Demo&quot;
+
+  - id: description
+    type: markdown
+    config:
+      content: &quot;Widgets flow vertically with 24px gap&quot;
+
+  - id: input
+    type: textbox
+    config:
+      label: &quot;Enter text&quot;
+      placeholder: &quot;Type here...&quot;
+
+  - id: button
+    type: button
+    config:
+      label: &quot;Submit&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(&quot;Flex layout:&quot;);
+    println!(&quot;  Direction: {:?}&quot;, scene.layout.direction);
+    println!(&quot;  Gap: {:?}px&quot;, scene.layout.gap);
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts"><a class="header" href="#key-concepts">Key Concepts</a></h2>
+<h3 id="flex-properties"><a class="header" href="#flex-properties">Flex Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Values</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>direction</code></td><td>enum</td><td><code>row</code>, <code>column</code></td><td>Main axis direction</td></tr>
+<tr><td><code>gap</code></td><td>u32</td><td>pixels</td><td>Space between items</td></tr>
+<tr><td><code>justify</code></td><td>enum</td><td><code>start</code>, <code>center</code>, <code>end</code>, <code>between</code></td><td>Main axis alignment</td></tr>
+<tr><td><code>align</code></td><td>enum</td><td><code>start</code>, <code>center</code>, <code>end</code>, <code>stretch</code></td><td>Cross axis alignment</td></tr>
+</tbody></table>
+</div>
+<h3 id="direction-examples"><a class="header" href="#direction-examples">Direction Examples</a></h3>
+<pre><code class="language-yaml"># Horizontal (default)
+layout:
+  type: flex
+  direction: row
+
+# Vertical
+layout:
+  type: flex
+  direction: column
+</code></pre>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_flex_layout
+</code></pre>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h2>
+<ul>
+<li><strong>Forms</strong>: Vertical stack of input fields</li>
+<li><strong>Toolbars</strong>: Horizontal row of buttons</li>
+<li><strong>Lists</strong>: Dynamic content that flows naturally</li>
+<li><strong>Simple layouts</strong>: When you don't need precise positioning</li>
+</ul>
 
                     </main>
 

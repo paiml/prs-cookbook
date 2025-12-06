@@ -180,6 +180,94 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="network"><a class="header" href="#network">Network</a></h1>
+<p>Grant network access to specific domains.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - network permissions are per-scene</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same permissions → same access</td></tr>
+<tr><td>Usefulness</td><td>API calls, CDN resources</td></tr>
+<tr><td>Reproducibility</td><td>Predictable network access</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;permission_network&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;network-permission-demo&quot;
+
+resources:
+  models:
+    api_model:
+      type: apr
+      source: &quot;https://api.example.com/model.apr&quot;
+      hash: &quot;blake3:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890&quot;
+
+permissions:
+  network:
+    - &quot;https://api.example.com/*&quot;
+    - &quot;https://cdn.example.com/*&quot;
+  clipboard: false
+  camera: false
+
+layout:
+  type: flex
+
+widgets:
+  - id: status
+    type: markdown
+    config:
+      content: &quot;Network access granted to api.example.com&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<pre><code class="language-yaml">permissions:
+  network:
+    - &quot;https://api.example.com/*&quot;
+    - &quot;https://cdn.example.com/*&quot;
+</code></pre>
+<h2 id="pattern-syntax"><a class="header" href="#pattern-syntax">Pattern Syntax</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody>
+<tr><td><code>https://example.com/*</code></td><td>All paths on domain</td></tr>
+<tr><td><code>https://*.example.com/*</code></td><td>All subdomains</td></tr>
+<tr><td><code>https://api.example.com/v1/*</code></td><td>Specific path prefix</td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example permission_network
+</code></pre>
+<h2 id="security-best-practices"><a class="header" href="#security-best-practices">Security Best Practices</a></h2>
+<pre><code class="language-yaml"># Good: Specific domain
+network:
+  - &quot;https://api.example.com/*&quot;
+
+# Bad: Too broad
+network:
+  - &quot;https://*&quot;
+</code></pre>
+<h2 id="remote-resources"><a class="header" href="#remote-resources">Remote Resources</a></h2>
+<p>Network permissions are <strong>required</strong> for remote resources:</p>
+<pre><code class="language-yaml">resources:
+  models:
+    classifier:
+      source: &quot;https://cdn.example.com/model.apr&quot;
+      hash: &quot;blake3:...&quot;  # Required
+
+permissions:
+  network:
+    - &quot;https://cdn.example.com/*&quot;  # Must match source
+</code></pre>
 
                     </main>
 

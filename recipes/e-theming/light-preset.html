@@ -180,6 +180,70 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="light-preset"><a class="header" href="#light-preset">Light Preset</a></h1>
+<p>Apply light theme preset to scenes.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - theme is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same appearance</td></tr>
+<tr><td>Usefulness</td><td>Standard light mode UI</td></tr>
+<tr><td>Reproducibility</td><td>Consistent light theme rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_preset_light&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;light-theme-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Light Theme Demo&quot;
+
+theme:
+  preset: &quot;light&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;light&quot;
+</code></pre>
+<h2 id="light-theme-colors"><a class="header" href="#light-theme-colors">Light Theme Colors</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Default Value</th></tr></thead><tbody>
+<tr><td><code>background</code></td><td><code>#ffffff</code></td></tr>
+<tr><td><code>surface</code></td><td><code>#f8f9fa</code></td></tr>
+<tr><td><code>primary</code></td><td><code>#3498db</code></td></tr>
+<tr><td><code>text</code></td><td><code>#2c3e50</code></td></tr>
+<tr><td><code>error</code></td><td><code>#e74c3c</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_preset_light
+</code></pre>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h2>
+<ul>
+<li>Well-lit environments</li>
+<li>Print-friendly layouts</li>
+<li>Default/standard appearance</li>
+<li>High contrast readability</li>
+</ul>
 
                     </main>
 

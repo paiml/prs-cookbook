@@ -180,7 +180,43 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
-
+<p>Widget configuration recipes for interactive scene components.</p>
+<h2 id="available-widgets"><a class="header" href="#available-widgets">Available Widgets</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Widget</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="./text-input.html">Text Input</a></td><td>User text entry</td><td><code>label</code>, <code>placeholder</code>, <code>max_length</code></td></tr>
+<tr><td><a href="./slider.html">Slider</a></td><td>Numeric range selection</td><td><code>min</code>, <code>max</code>, <code>step</code>, <code>default</code></td></tr>
+<tr><td><a href="./dropdown.html">Dropdown</a></td><td>Option selection</td><td><code>options</code>, <code>default</code>, <code>placeholder</code></td></tr>
+<tr><td><a href="./charts.html">Charts</a></td><td>Data visualization</td><td><code>title</code>, <code>data</code>, <code>series</code></td></tr>
+<tr><td><a href="./data-table.html">Data Table</a></td><td>Tabular data display</td><td><code>columns</code>, <code>pagination</code>, <code>search</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<p>All widget recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Each widget is independently configurable</li>
+<li><strong>Idempotent</strong>: Same config produces same widget</li>
+<li><strong>Useful</strong>: Real-world interactive components</li>
+<li><strong>Reproducible</strong>: Deterministic rendering</li>
+</ul>
+<h2 id="common-widget-structure"><a class="header" href="#common-widget-structure">Common Widget Structure</a></h2>
+<pre><code class="language-yaml">widgets:
+  - id: my-widget        # Unique identifier
+    type: textbox        # Widget type
+    position: { ... }    # Optional positioning
+    config:              # Widget-specific config
+      label: &quot;...&quot;
+      # ... more options
+</code></pre>
+<h2 id="widget-events"><a class="header" href="#widget-events">Widget Events</a></h2>
+<p>Widgets emit events that can trigger bindings:</p>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Widgets</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>All inputs</td><td>Value changed</td></tr>
+<tr><td><code>focus</code></td><td>Text inputs</td><td>Widget focused</td></tr>
+<tr><td><code>blur</code></td><td>Text inputs</td><td>Widget unfocused</td></tr>
+<tr><td><code>select</code></td><td>Dropdown, Table</td><td>Item selected</td></tr>
+<tr><td><code>sort</code></td><td>Data Table</td><td>Column sorted</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

@@ -620,41 +620,3160 @@ widgets:
 <li><code>RecipeContext</code> provides isolated execution</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="grid-layout"><a class="header" href="#grid-layout">Grid Layout</a></h1>
+<p>Create scenes with CSS Grid layout for dashboard-style interfaces.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Dashboard layouts with positioned widgets</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_grid_layout&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;grid-demo&quot;
+  title: &quot;Grid Layout Demo&quot;
+
+layout:
+  type: grid
+  columns: 3
+  rows: 2
+  gap: 16
+
+widgets:
+  - id: header
+    type: markdown
+    position: { row: 0, col: 0, colspan: 3 }
+    config:
+      content: &quot;# Dashboard Header&quot;
+
+  - id: chart1
+    type: bar_chart
+    position: { row: 1, col: 0 }
+    config:
+      title: &quot;Sales&quot;
+
+  - id: chart2
+    type: line_chart
+    position: { row: 1, col: 1 }
+    config:
+      title: &quot;Trends&quot;
+
+  - id: gauge
+    type: gauge
+    position: { row: 1, col: 2 }
+    config:
+      value: 75
+      min: 0
+      max: 100
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(
+        &quot;Grid layout: {}x{}&quot;,
+        scene.layout.columns.unwrap_or(0),
+        scene.layout.rows.unwrap_or(0)
+    );
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts"><a class="header" href="#key-concepts">Key Concepts</a></h2>
+<h3 id="grid-properties"><a class="header" href="#grid-properties">Grid Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>columns</code></td><td>u32</td><td>Number of columns (required for validation)</td></tr>
+<tr><td><code>rows</code></td><td>u32</td><td>Number of rows</td></tr>
+<tr><td><code>gap</code></td><td>u32</td><td>Gap between cells in pixels</td></tr>
+</tbody></table>
+</div>
+<h3 id="widget-positioning"><a class="header" href="#widget-positioning">Widget Positioning</a></h3>
+<pre><code class="language-yaml">position:
+  row: 0      # Row index (0-based)
+  col: 0      # Column index (0-based)
+  colspan: 3  # Span multiple columns
+  rowspan: 2  # Span multiple rows
+</code></pre>
+<h2 id="run-1"><a class="header" href="#run-1">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_grid_layout
+</code></pre>
+<h2 id="validation-rules-1"><a class="header" href="#validation-rules-1">Validation Rules</a></h2>
+<ul>
+<li>Grid layout <strong>requires</strong> <code>columns</code> to be specified</li>
+<li>Widget positions must be within grid bounds</li>
+<li><code>colspan</code>/<code>rowspan</code> must not exceed grid dimensions</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="flex-layout"><a class="header" href="#flex-layout">Flex Layout</a></h1>
+<p>Create scenes with flexbox layout for responsive, flowing interfaces.</p>
+<h2 id="iiur-properties-1"><a class="header" href="#iiur-properties-1">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Forms, lists, and flowing content</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_flex_layout&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;flex-demo&quot;
+  title: &quot;Flexbox Layout Demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 24
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Flex Layout Demo&quot;
+
+  - id: description
+    type: markdown
+    config:
+      content: &quot;Widgets flow vertically with 24px gap&quot;
+
+  - id: input
+    type: textbox
+    config:
+      label: &quot;Enter text&quot;
+      placeholder: &quot;Type here...&quot;
+
+  - id: button
+    type: button
+    config:
+      label: &quot;Submit&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(&quot;Flex layout:&quot;);
+    println!(&quot;  Direction: {:?}&quot;, scene.layout.direction);
+    println!(&quot;  Gap: {:?}px&quot;, scene.layout.gap);
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts-1"><a class="header" href="#key-concepts-1">Key Concepts</a></h2>
+<h3 id="flex-properties"><a class="header" href="#flex-properties">Flex Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Values</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>direction</code></td><td>enum</td><td><code>row</code>, <code>column</code></td><td>Main axis direction</td></tr>
+<tr><td><code>gap</code></td><td>u32</td><td>pixels</td><td>Space between items</td></tr>
+<tr><td><code>justify</code></td><td>enum</td><td><code>start</code>, <code>center</code>, <code>end</code>, <code>between</code></td><td>Main axis alignment</td></tr>
+<tr><td><code>align</code></td><td>enum</td><td><code>start</code>, <code>center</code>, <code>end</code>, <code>stretch</code></td><td>Cross axis alignment</td></tr>
+</tbody></table>
+</div>
+<h3 id="direction-examples"><a class="header" href="#direction-examples">Direction Examples</a></h3>
+<pre><code class="language-yaml"># Horizontal (default)
+layout:
+  type: flex
+  direction: row
+
+# Vertical
+layout:
+  type: flex
+  direction: column
+</code></pre>
+<h2 id="run-2"><a class="header" href="#run-2">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_flex_layout
+</code></pre>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h2>
+<ul>
+<li><strong>Forms</strong>: Vertical stack of input fields</li>
+<li><strong>Toolbars</strong>: Horizontal row of buttons</li>
+<li><strong>Lists</strong>: Dynamic content that flows naturally</li>
+<li><strong>Simple layouts</strong>: When you don't need precise positioning</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="absolute-layout"><a class="header" href="#absolute-layout">Absolute Layout</a></h1>
+<p>Create scenes with absolute positioning for pixel-perfect control.</p>
+<h2 id="iiur-properties-2"><a class="header" href="#iiur-properties-2">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Pixel-perfect dashboards and fixed layouts</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_absolute_layout&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;absolute-demo&quot;
+  title: &quot;Absolute Layout Demo&quot;
+
+layout:
+  type: absolute
+  width: 800
+  height: 600
+
+widgets:
+  - id: title
+    type: markdown
+    position: { x: 20, y: 20, width: 760, height: 60 }
+    config:
+      content: &quot;Absolute Positioning Demo&quot;
+
+  - id: sidebar
+    type: markdown
+    position: { x: 20, y: 100, width: 200, height: 480 }
+    config:
+      content: &quot;Sidebar&quot;
+
+  - id: main
+    type: markdown
+    position: { x: 240, y: 100, width: 540, height: 480 }
+    config:
+      content: &quot;Main Content Area&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(&quot;Absolute layout:&quot;);
+    println!(
+        &quot;  Canvas: {}x{}&quot;,
+        scene.layout.width.unwrap_or(0),
+        scene.layout.height.unwrap_or(0)
+    );
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts-2"><a class="header" href="#key-concepts-2">Key Concepts</a></h2>
+<h3 id="canvas-properties"><a class="header" href="#canvas-properties">Canvas Properties</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>width</code></td><td>u32</td><td>Canvas width in pixels</td></tr>
+<tr><td><code>height</code></td><td>u32</td><td>Canvas height in pixels</td></tr>
+</tbody></table>
+</div>
+<h3 id="widget-positioning-1"><a class="header" href="#widget-positioning-1">Widget Positioning</a></h3>
+<pre><code class="language-yaml">position:
+  x: 20       # Left offset in pixels
+  y: 100      # Top offset in pixels
+  width: 200  # Widget width
+  height: 480 # Widget height
+</code></pre>
+<h2 id="run-3"><a class="header" href="#run-3">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_absolute_layout
+</code></pre>
+<h2 id="when-to-use-1"><a class="header" href="#when-to-use-1">When to Use</a></h2>
+<ul>
+<li><strong>Fixed dashboards</strong>: Known screen dimensions</li>
+<li><strong>Presentations</strong>: Slide-like layouts</li>
+<li><strong>Precise control</strong>: When responsive layout isn't needed</li>
+<li><strong>Canvas-based UIs</strong>: Drawing or diagram tools</li>
+</ul>
+<h2 id="considerations"><a class="header" href="#considerations">Considerations</a></h2>
+<ul>
+<li>Not responsive to screen size changes</li>
+<li>Requires manual positioning calculations</li>
+<li>Best for fixed-size displays or embedded contexts</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nested-layouts"><a class="header" href="#nested-layouts">Nested Layouts</a></h1>
+<p>Compose multiple layout types for complex UI structures.</p>
+<h2 id="iiur-properties-3"><a class="header" href="#iiur-properties-3">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - uses <code>tempfile::tempdir()</code></td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Complex multi-panel interfaces</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic RNG seeded by recipe name</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;create_nested_layouts&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;nested-layouts-demo&quot;
+  title: &quot;Nested Layouts Demo&quot;
+
+layout:
+  type: grid
+  columns: 2
+  rows: 1
+  gap: 16
+
+widgets:
+  - id: left-panel
+    type: container
+    position: { row: 0, col: 0 }
+    config:
+      layout:
+        type: flex
+        direction: column
+        gap: 8
+      children:
+        - type: markdown
+          content: &quot;Left Panel Header&quot;
+        - type: textbox
+          label: &quot;Search&quot;
+
+  - id: right-panel
+    type: container
+    position: { row: 0, col: 1 }
+    config:
+      layout:
+        type: flex
+        direction: column
+        gap: 8
+      children:
+        - type: markdown
+          content: &quot;Right Panel&quot;
+        - type: data_table
+          columns: [&quot;Name&quot;, &quot;Value&quot;]
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    println!(&quot;Nested layout structure:&quot;);
+    println!(&quot;  Outer: {:?}&quot;, scene.layout.layout_type);
+    println!(
+        &quot;  Grid: {}x{}&quot;,
+        scene.layout.columns.unwrap_or(0),
+        scene.layout.rows.unwrap_or(0)
+    );
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="key-concepts-3"><a class="header" href="#key-concepts-3">Key Concepts</a></h2>
+<h3 id="container-widget"><a class="header" href="#container-widget">Container Widget</a></h3>
+<p>The <code>container</code> widget type allows nesting layouts:</p>
+<pre><code class="language-yaml">- id: panel
+  type: container
+  config:
+    layout:
+      type: flex        # Nested layout type
+      direction: column
+    children:           # Child widgets
+      - type: markdown
+        content: &quot;...&quot;
+</code></pre>
+<h3 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h3>
+<h4 id="sidebar--main-content"><a class="header" href="#sidebar--main-content">Sidebar + Main Content</a></h4>
+<pre><code class="language-yaml">layout:
+  type: grid
+  columns: 2
+
+widgets:
+  - id: sidebar
+    type: container
+    position: { col: 0 }
+    config:
+      layout: { type: flex, direction: column }
+
+  - id: main
+    type: container
+    position: { col: 1 }
+    config:
+      layout: { type: flex, direction: column }
+</code></pre>
+<h4 id="header--body--footer"><a class="header" href="#header--body--footer">Header + Body + Footer</a></h4>
+<pre><code class="language-yaml">layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: header
+    type: container
+    config:
+      layout: { type: flex, direction: row }
+
+  - id: body
+    type: container
+    config:
+      layout: { type: grid, columns: 3 }
+
+  - id: footer
+    type: container
+    config:
+      layout: { type: flex, direction: row }
+</code></pre>
+<h2 id="run-4"><a class="header" href="#run-4">Run</a></h2>
+<pre><code class="language-bash">cargo run --example create_nested_layouts
+</code></pre>
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<ul>
+<li>Use grid for the outer structure</li>
+<li>Use flex for inner content flow</li>
+<li>Keep nesting depth shallow (max 2-3 levels)</li>
+<li>Name containers descriptively (<code>sidebar</code>, <code>main-content</code>)</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="text-input"><a class="header" href="#text-input">Text Input</a></h1>
+<p>Widget configuration recipes for interactive scene components.</p>
+<h2 id="available-widgets"><a class="header" href="#available-widgets">Available Widgets</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Widget</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="recipes/b-widget-config/./text-input.html">Text Input</a></td><td>User text entry</td><td><code>label</code>, <code>placeholder</code>, <code>max_length</code></td></tr>
+<tr><td><a href="recipes/b-widget-config/./slider.html">Slider</a></td><td>Numeric range selection</td><td><code>min</code>, <code>max</code>, <code>step</code>, <code>default</code></td></tr>
+<tr><td><a href="recipes/b-widget-config/./dropdown.html">Dropdown</a></td><td>Option selection</td><td><code>options</code>, <code>default</code>, <code>placeholder</code></td></tr>
+<tr><td><a href="recipes/b-widget-config/./charts.html">Charts</a></td><td>Data visualization</td><td><code>title</code>, <code>data</code>, <code>series</code></td></tr>
+<tr><td><a href="recipes/b-widget-config/./data-table.html">Data Table</a></td><td>Tabular data display</td><td><code>columns</code>, <code>pagination</code>, <code>search</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-4"><a class="header" href="#iiur-properties-4">IIUR Properties</a></h2>
+<p>All widget recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Each widget is independently configurable</li>
+<li><strong>Idempotent</strong>: Same config produces same widget</li>
+<li><strong>Useful</strong>: Real-world interactive components</li>
+<li><strong>Reproducible</strong>: Deterministic rendering</li>
+</ul>
+<h2 id="common-widget-structure"><a class="header" href="#common-widget-structure">Common Widget Structure</a></h2>
+<pre><code class="language-yaml">widgets:
+  - id: my-widget        # Unique identifier
+    type: textbox        # Widget type
+    position: { ... }    # Optional positioning
+    config:              # Widget-specific config
+      label: &quot;...&quot;
+      # ... more options
+</code></pre>
+<h2 id="widget-events"><a class="header" href="#widget-events">Widget Events</a></h2>
+<p>Widgets emit events that can trigger bindings:</p>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Widgets</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>All inputs</td><td>Value changed</td></tr>
+<tr><td><code>focus</code></td><td>Text inputs</td><td>Widget focused</td></tr>
+<tr><td><code>blur</code></td><td>Text inputs</td><td>Widget unfocused</td></tr>
+<tr><td><code>select</code></td><td>Dropdown, Table</td><td>Item selected</td></tr>
+<tr><td><code>sort</code></td><td>Data Table</td><td>Column sorted</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="text-input"><a class="header" href="#text-input">Text Input</a></h1>
+<p>Configure text input widgets with validation and placeholder text.</p>
+<h2 id="iiur-properties-5"><a class="header" href="#iiur-properties-5">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Forms, search boxes, user input</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-4"><a class="header" href="#example-4">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_text_input&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;text-input-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: username
+    type: textbox
+    config:
+      label: &quot;Username&quot;
+      placeholder: &quot;Enter your username...&quot;
+      max_length: 50
+
+  - id: email
+    type: textbox
+    config:
+      label: &quot;Email&quot;
+      placeholder: &quot;user@example.com&quot;
+      max_length: 100
+
+  - id: bio
+    type: textbox
+    config:
+      label: &quot;Bio&quot;
+      placeholder: &quot;Tell us about yourself...&quot;
+      max_length: 500
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options"><a class="header" href="#configuration-options">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>string</td><td>No</td><td>Label displayed above input</td></tr>
+<tr><td><code>placeholder</code></td><td>string</td><td>No</td><td>Hint text when empty</td></tr>
+<tr><td><code>max_length</code></td><td>u32</td><td>No</td><td>Maximum character count</td></tr>
+<tr><td><code>default</code></td><td>string</td><td>No</td><td>Initial value</td></tr>
+<tr><td><code>disabled</code></td><td>bool</td><td>No</td><td>Disable user interaction</td></tr>
+<tr><td><code>required</code></td><td>bool</td><td>No</td><td>Mark as required field</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-5"><a class="header" href="#run-5">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_text_input
+</code></pre>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Payload</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td><code>{ value: string }</code></td><td>Text changed</td></tr>
+<tr><td><code>focus</code></td><td><code>{}</code></td><td>Input focused</td></tr>
+<tr><td><code>blur</code></td><td><code>{ value: string }</code></td><td>Input unfocused</td></tr>
+</tbody></table>
+</div>
+<h2 id="binding-example"><a class="header" href="#binding-example">Binding Example</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;username.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: validation
+        action: refresh
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="slider"><a class="header" href="#slider">Slider</a></h1>
+<p>Configure slider widgets for numeric range selection.</p>
+<h2 id="iiur-properties-6"><a class="header" href="#iiur-properties-6">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Volume, brightness, numeric parameters</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_slider&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;slider-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: volume
+    type: slider
+    config:
+      label: &quot;Volume&quot;
+      min: 0
+      max: 100
+      default: 50
+      step: 1
+
+  - id: brightness
+    type: slider
+    config:
+      label: &quot;Brightness&quot;
+      min: 0
+      max: 100
+      default: 75
+      step: 5
+
+  - id: temperature
+    type: slider
+    config:
+      label: &quot;Temperature (°C)&quot;
+      min: -20
+      max: 40
+      default: 22
+      step: 0.5
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options-1"><a class="header" href="#configuration-options-1">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>min</code></td><td>number</td><td>Yes</td><td>Minimum value</td></tr>
+<tr><td><code>max</code></td><td>number</td><td>Yes</td><td>Maximum value</td></tr>
+<tr><td><code>step</code></td><td>number</td><td>No</td><td>Step increment (default: 1)</td></tr>
+<tr><td><code>default</code></td><td>number</td><td>No</td><td>Initial value</td></tr>
+<tr><td><code>label</code></td><td>string</td><td>No</td><td>Label displayed above slider</td></tr>
+<tr><td><code>show_value</code></td><td>bool</td><td>No</td><td>Display current value</td></tr>
+<tr><td><code>disabled</code></td><td>bool</td><td>No</td><td>Disable user interaction</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-6"><a class="header" href="#run-6">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_slider
+</code></pre>
+<h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Payload</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td><code>{ value: number }</code></td><td>Slider moved</td></tr>
+<tr><td><code>release</code></td><td><code>{ value: number }</code></td><td>Drag ended</td></tr>
+</tbody></table>
+</div>
+<h2 id="binding-example-1"><a class="header" href="#binding-example-1">Binding Example</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;volume.change&quot;
+    actions:
+      - target: audio
+        action: set_volume
+        input: &quot;{{ volume.value }}&quot;
+</code></pre>
+<h2 id="step-values"><a class="header" href="#step-values">Step Values</a></h2>
+<pre><code class="language-yaml"># Integer steps
+step: 1     # 0, 1, 2, 3...
+
+# Fine control
+step: 0.1   # 0.0, 0.1, 0.2...
+
+# Coarse steps
+step: 10    # 0, 10, 20, 30...
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dropdown"><a class="header" href="#dropdown">Dropdown</a></h1>
+<p>Configure dropdown widgets for option selection.</p>
+<h2 id="iiur-properties-7"><a class="header" href="#iiur-properties-7">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Category selection, settings, filters</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-6"><a class="header" href="#example-6">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_dropdown&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;dropdown-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: country
+    type: dropdown
+    config:
+      label: &quot;Country&quot;
+      placeholder: &quot;Select a country...&quot;
+      options:
+        - value: &quot;us&quot;
+          label: &quot;United States&quot;
+        - value: &quot;uk&quot;
+          label: &quot;United Kingdom&quot;
+        - value: &quot;de&quot;
+          label: &quot;Germany&quot;
+        - value: &quot;fr&quot;
+          label: &quot;France&quot;
+
+  - id: language
+    type: dropdown
+    config:
+      label: &quot;Language&quot;
+      default: &quot;en&quot;
+      options:
+        - value: &quot;en&quot;
+          label: &quot;English&quot;
+        - value: &quot;es&quot;
+          label: &quot;Spanish&quot;
+        - value: &quot;fr&quot;
+          label: &quot;French&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options-2"><a class="header" href="#configuration-options-2">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>options</code></td><td>array</td><td>Yes</td><td>Available options</td></tr>
+<tr><td><code>label</code></td><td>string</td><td>No</td><td>Label displayed above dropdown</td></tr>
+<tr><td><code>placeholder</code></td><td>string</td><td>No</td><td>Hint text when no selection</td></tr>
+<tr><td><code>default</code></td><td>string</td><td>No</td><td>Initial selected value</td></tr>
+<tr><td><code>disabled</code></td><td>bool</td><td>No</td><td>Disable user interaction</td></tr>
+<tr><td><code>searchable</code></td><td>bool</td><td>No</td><td>Enable option filtering</td></tr>
+</tbody></table>
+</div>
+<h2 id="option-structure"><a class="header" href="#option-structure">Option Structure</a></h2>
+<pre><code class="language-yaml">options:
+  - value: &quot;key&quot;      # Unique identifier
+    label: &quot;Display&quot;  # User-visible text
+    icon: &quot;icon-name&quot; # Optional icon
+    disabled: false   # Disable this option
+</code></pre>
+<h2 id="run-7"><a class="header" href="#run-7">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_dropdown
+</code></pre>
+<h2 id="events-2"><a class="header" href="#events-2">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Payload</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td><code>{ value: string, label: string }</code></td><td>Selection changed</td></tr>
+<tr><td><code>open</code></td><td><code>{}</code></td><td>Dropdown opened</td></tr>
+<tr><td><code>close</code></td><td><code>{}</code></td><td>Dropdown closed</td></tr>
+</tbody></table>
+</div>
+<h2 id="binding-example-2"><a class="header" href="#binding-example-2">Binding Example</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;country.change&quot;
+    actions:
+      - target: cities-dropdown
+        action: refresh
+        input: &quot;{{ country.value }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="charts"><a class="header" href="#charts">Charts</a></h1>
+<p>Configure chart widgets for data visualization.</p>
+<h2 id="iiur-properties-8"><a class="header" href="#iiur-properties-8">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Dashboards, analytics, metrics</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-7"><a class="header" href="#example-7">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_charts&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;charts-demo&quot;
+
+layout:
+  type: grid
+  columns: 2
+  rows: 2
+  gap: 16
+
+widgets:
+  - id: bar-chart
+    type: bar_chart
+    position: { row: 0, col: 0 }
+    config:
+      title: &quot;Monthly Sales&quot;
+      x_axis: &quot;Month&quot;
+      y_axis: &quot;Revenue ($)&quot;
+      data:
+        - label: &quot;Jan&quot;
+          value: 1200
+        - label: &quot;Feb&quot;
+          value: 1800
+        - label: &quot;Mar&quot;
+          value: 1500
+
+  - id: line-chart
+    type: line_chart
+    position: { row: 0, col: 1 }
+    config:
+      title: &quot;User Growth&quot;
+      x_axis: &quot;Week&quot;
+      y_axis: &quot;Users&quot;
+      series:
+        - name: &quot;Active&quot;
+          color: &quot;blue&quot;
+        - name: &quot;New&quot;
+          color: &quot;green&quot;
+
+  - id: gauge
+    type: gauge
+    position: { row: 1, col: 0 }
+    config:
+      title: &quot;CPU Usage&quot;
+      value: 67
+      min: 0
+      max: 100
+      unit: &quot;%&quot;
+      thresholds:
+        - value: 50
+          color: &quot;green&quot;
+        - value: 80
+          color: &quot;yellow&quot;
+        - value: 100
+          color: &quot;red&quot;
+
+  - id: pie-chart
+    type: pie_chart
+    position: { row: 1, col: 1 }
+    config:
+      title: &quot;Traffic Sources&quot;
+      data:
+        - label: &quot;Organic&quot;
+          value: 45
+        - label: &quot;Direct&quot;
+          value: 30
+        - label: &quot;Referral&quot;
+          value: 25
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="chart-types"><a class="header" href="#chart-types">Chart Types</a></h2>
+<h3 id="bar-chart"><a class="header" href="#bar-chart">Bar Chart</a></h3>
+<pre><code class="language-yaml">type: bar_chart
+config:
+  title: &quot;Sales&quot;
+  x_axis: &quot;Month&quot;
+  y_axis: &quot;Revenue&quot;
+  data:
+    - label: &quot;Jan&quot;
+      value: 1200
+</code></pre>
+<h3 id="line-chart"><a class="header" href="#line-chart">Line Chart</a></h3>
+<pre><code class="language-yaml">type: line_chart
+config:
+  title: &quot;Growth&quot;
+  series:
+    - name: &quot;Users&quot;
+      color: &quot;blue&quot;
+</code></pre>
+<h3 id="gauge"><a class="header" href="#gauge">Gauge</a></h3>
+<pre><code class="language-yaml">type: gauge
+config:
+  value: 75
+  min: 0
+  max: 100
+  thresholds:
+    - value: 50
+      color: &quot;green&quot;
+</code></pre>
+<h3 id="pie-chart"><a class="header" href="#pie-chart">Pie Chart</a></h3>
+<pre><code class="language-yaml">type: pie_chart
+config:
+  data:
+    - label: &quot;A&quot;
+      value: 40
+    - label: &quot;B&quot;
+      value: 60
+</code></pre>
+<h2 id="run-8"><a class="header" href="#run-8">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_charts
+</code></pre>
+<h2 id="data-binding"><a class="header" href="#data-binding">Data Binding</a></h2>
+<p>Charts can bind to dataset resources:</p>
+<pre><code class="language-yaml">widgets:
+  - id: sales-chart
+    type: bar_chart
+    config:
+      data_source: &quot;datasets.sales&quot;
+      x_field: &quot;month&quot;
+      y_field: &quot;revenue&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="data-table"><a class="header" href="#data-table">Data Table</a></h1>
+<p>Configure data table widgets for tabular data display.</p>
+<h2 id="iiur-properties-9"><a class="header" href="#iiur-properties-9">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - independent widget configuration</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same widget</td></tr>
+<tr><td>Usefulness</td><td>Lists, records, database views</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-8"><a class="header" href="#example-8">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;widget_data_table&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;data-table-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: users-table
+    type: data_table
+    config:
+      title: &quot;User List&quot;
+      columns:
+        - field: &quot;id&quot;
+          header: &quot;ID&quot;
+          width: 60
+          sortable: true
+        - field: &quot;name&quot;
+          header: &quot;Name&quot;
+          width: 200
+          sortable: true
+        - field: &quot;email&quot;
+          header: &quot;Email&quot;
+          width: 250
+        - field: &quot;role&quot;
+          header: &quot;Role&quot;
+          width: 100
+          sortable: true
+        - field: &quot;status&quot;
+          header: &quot;Status&quot;
+          width: 80
+      pagination:
+        enabled: true
+        page_size: 10
+      search:
+        enabled: true
+        placeholder: &quot;Search users...&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="column-configuration"><a class="header" href="#column-configuration">Column Configuration</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>field</code></td><td>string</td><td>Data field name</td></tr>
+<tr><td><code>header</code></td><td>string</td><td>Column header text</td></tr>
+<tr><td><code>width</code></td><td>number</td><td>Column width in pixels</td></tr>
+<tr><td><code>sortable</code></td><td>bool</td><td>Enable sorting</td></tr>
+<tr><td><code>filterable</code></td><td>bool</td><td>Enable column filtering</td></tr>
+<tr><td><code>format</code></td><td>string</td><td>Display format</td></tr>
+</tbody></table>
+</div>
+<h2 id="pagination-options"><a class="header" href="#pagination-options">Pagination Options</a></h2>
+<pre><code class="language-yaml">pagination:
+  enabled: true
+  page_size: 10
+  page_sizes: [10, 25, 50, 100]
+</code></pre>
+<h2 id="search-options"><a class="header" href="#search-options">Search Options</a></h2>
+<pre><code class="language-yaml">search:
+  enabled: true
+  placeholder: &quot;Search...&quot;
+  fields: [&quot;name&quot;, &quot;email&quot;]  # Limit search to fields
+</code></pre>
+<h2 id="run-9"><a class="header" href="#run-9">Run</a></h2>
+<pre><code class="language-bash">cargo run --example widget_data_table
+</code></pre>
+<h2 id="events-3"><a class="header" href="#events-3">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Payload</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>select</code></td><td><code>{ row: object }</code></td><td>Row selected</td></tr>
+<tr><td><code>sort</code></td><td><code>{ field: string, direction: string }</code></td><td>Column sorted</td></tr>
+<tr><td><code>page</code></td><td><code>{ page: number }</code></td><td>Page changed</td></tr>
+<tr><td><code>search</code></td><td><code>{ query: string }</code></td><td>Search performed</td></tr>
+</tbody></table>
+</div>
+<h2 id="data-binding-1"><a class="header" href="#data-binding-1">Data Binding</a></h2>
+<pre><code class="language-yaml">resources:
+  datasets:
+    users:
+      type: parquet
+      source: &quot;./data/users.parquet&quot;
+
+widgets:
+  - id: users-table
+    type: data_table
+    config:
+      data_source: &quot;datasets.users&quot;
+      columns: [...]
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-1"><a class="header" href="#overview-1">Overview</a></h1>
+<p>Resource configuration recipes for models and datasets.</p>
+<h2 id="resource-types"><a class="header" href="#resource-types">Resource Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Resource</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="recipes/c-resources/./local-model.html">Local Model</a></td><td>Local <code>.apr</code> files</td><td><code>type</code>, <code>source</code></td></tr>
+<tr><td><a href="recipes/c-resources/./remote-model.html">Remote Model</a></td><td>CDN-hosted models</td><td><code>hash</code>, <code>size_bytes</code></td></tr>
+<tr><td><a href="recipes/c-resources/./dataset.html">Dataset</a></td><td>Data files</td><td><code>transforms</code></td></tr>
+<tr><td><a href="recipes/c-resources/./fallback-sources.html">Fallback Sources</a></td><td>Resilient loading</td><td><code>sources</code> array</td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-10"><a class="header" href="#iiur-properties-10">IIUR Properties</a></h2>
+<p>All resource recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Resources are independently loadable</li>
+<li><strong>Idempotent</strong>: Same resource config loads same data</li>
+<li><strong>Useful</strong>: Real-world ML and data scenarios</li>
+<li><strong>Reproducible</strong>: Hash verification ensures integrity</li>
+</ul>
+<h2 id="resource-structure"><a class="header" href="#resource-structure">Resource Structure</a></h2>
+<pre><code class="language-yaml">resources:
+  models:
+    model-name:
+      type: apr          # Model format
+      source: &quot;./path&quot;   # File path or URL
+      hash: &quot;blake3:...&quot; # Required for remote
+
+  datasets:
+    dataset-name:
+      type: parquet      # csv, parquet, ald
+      source: &quot;./path&quot;
+      transforms: [...]  # Optional transforms
+</code></pre>
+<h2 id="security"><a class="header" href="#security">Security</a></h2>
+<p>Remote resources <strong>require</strong> BLAKE3 hash verification:</p>
+<pre><code class="language-yaml">models:
+  classifier:
+    source: &quot;https://cdn.example.com/model.apr&quot;
+    hash: &quot;blake3:a1b2c3...&quot;  # REQUIRED
+</code></pre>
+<p>This prevents supply-chain attacks and ensures reproducibility.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="local-model"><a class="header" href="#local-model">Local Model</a></h1>
+<p>Reference local <code>.apr</code> model files in scene resources.</p>
+<h2 id="iiur-properties-11"><a class="header" href="#iiur-properties-11">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - model loaded independently</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same file → same model</td></tr>
+<tr><td>Usefulness</td><td>Local ML inference without network</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic model loading</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-9"><a class="header" href="#example-9">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;resource_local_model&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;local-model-demo&quot;
+
+resources:
+  models:
+    sentiment:
+      type: apr
+      source: &quot;./models/sentiment.apr&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: input
+    type: textbox
+    config:
+      label: &quot;Text to analyze&quot;
+
+  - id: result
+    type: gauge
+    config:
+      title: &quot;Sentiment Score&quot;
+      min: 0
+      max: 100
+
+bindings:
+  - trigger: &quot;input.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: inference.sentiment
+        input: &quot;{{ input.value }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options-3"><a class="header" href="#configuration-options-3">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>enum</td><td>Yes</td><td>Model format: <code>apr</code>, <code>onnx</code></td></tr>
+<tr><td><code>source</code></td><td>string</td><td>Yes</td><td>Path to model file</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td>No</td><td>Optional BLAKE3 hash</td></tr>
+</tbody></table>
+</div>
+<h2 id="model-types"><a class="header" href="#model-types">Model Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>apr</code></td><td>APR format (Presentar native)</td></tr>
+<tr><td><code>onnx</code></td><td>ONNX format for interop</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-10"><a class="header" href="#run-10">Run</a></h2>
+<pre><code class="language-bash">cargo run --example resource_local_model
+</code></pre>
+<h2 id="directory-structure"><a class="header" href="#directory-structure">Directory Structure</a></h2>
+<pre><code>my-scene/
+├── scene.prs
+└── models/
+    └── sentiment.apr
+</code></pre>
+<h2 id="inference-binding"><a class="header" href="#inference-binding">Inference Binding</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;input.change&quot;
+    actions:
+      - target: inference.sentiment  # models.&lt;name&gt;
+        input: &quot;{{ input.value }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="remote-model"><a class="header" href="#remote-model">Remote Model</a></h1>
+<p>Reference remote models with BLAKE3 hash verification.</p>
+<h2 id="iiur-properties-12"><a class="header" href="#iiur-properties-12">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - model downloaded independently</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - hash ensures same model</td></tr>
+<tr><td>Usefulness</td><td>CDN-hosted models, shared assets</td></tr>
+<tr><td>Reproducibility</td><td>BLAKE3 hash verification</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-10"><a class="header" href="#example-10">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;resource_remote_model&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;remote-model-demo&quot;
+
+resources:
+  models:
+    classifier:
+      type: apr
+      source: &quot;https://registry.paiml.com/models/classifier.apr&quot;
+      hash: &quot;blake3:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2&quot;
+      size_bytes: 45000000
+
+permissions:
+  network:
+    - &quot;https://registry.paiml.com/*&quot;
+
+layout:
+  type: flex
+
+widgets:
+  - id: status
+    type: markdown
+    config:
+      content: &quot;Model loaded with verified hash&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options-4"><a class="header" href="#configuration-options-4">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>enum</td><td>Yes</td><td>Model format: <code>apr</code>, <code>onnx</code></td></tr>
+<tr><td><code>source</code></td><td>string</td><td>Yes</td><td>HTTPS URL to model</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td><strong>Yes</strong></td><td>BLAKE3 hash (required for remote)</td></tr>
+<tr><td><code>size_bytes</code></td><td>u64</td><td>No</td><td>Expected file size</td></tr>
+</tbody></table>
+</div>
+<h2 id="hash-format"><a class="header" href="#hash-format">Hash Format</a></h2>
+<pre><code class="language-yaml">hash: &quot;blake3:a1b2c3d4e5f6...&quot;
+</code></pre>
+<p>The hash is a 64-character hex string prefixed with <code>blake3:</code>.</p>
+<h2 id="generate-hash"><a class="header" href="#generate-hash">Generate Hash</a></h2>
+<pre><code class="language-bash">b3sum model.apr
+# Output: a1b2c3d4e5f6... model.apr
+</code></pre>
+<h2 id="run-11"><a class="header" href="#run-11">Run</a></h2>
+<pre><code class="language-bash">cargo run --example resource_remote_model
+</code></pre>
+<h2 id="network-permission"><a class="header" href="#network-permission">Network Permission</a></h2>
+<p>Remote models require network permissions:</p>
+<pre><code class="language-yaml">permissions:
+  network:
+    - &quot;https://registry.paiml.com/*&quot;
+</code></pre>
+<h2 id="validation"><a class="header" href="#validation">Validation</a></h2>
+<p>Remote models without hash will fail validation:</p>
+<pre><code>Error: Remote resource 'classifier' missing required hash
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dataset"><a class="header" href="#dataset">Dataset</a></h1>
+<p>Reference data files with optional transforms.</p>
+<h2 id="iiur-properties-13"><a class="header" href="#iiur-properties-13">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - dataset loaded independently</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same transforms → same data</td></tr>
+<tr><td>Usefulness</td><td>Charts, tables, data visualization</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic transform chain</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-11"><a class="header" href="#example-11">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;resource_dataset&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;dataset-demo&quot;
+
+resources:
+  datasets:
+    sales:
+      type: parquet
+      source: &quot;./data/sales.parquet&quot;
+      transforms:
+        - &quot;filter(year &gt;= 2023)&quot;
+        - &quot;sort(date desc)&quot;
+        - &quot;limit(1000)&quot;
+
+    users:
+      type: csv
+      source: &quot;./data/users.csv&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: sales-table
+    type: data_table
+    config:
+      title: &quot;Sales Data&quot;
+      source: &quot;datasets.sales&quot;
+
+  - id: sales-chart
+    type: bar_chart
+    config:
+      title: &quot;Sales by Month&quot;
+      source: &quot;datasets.sales&quot;
+      x: &quot;month&quot;
+      y: &quot;revenue&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-options-5"><a class="header" href="#configuration-options-5">Configuration Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>enum</td><td>Yes</td><td>Format: <code>parquet</code>, <code>csv</code>, <code>ald</code></td></tr>
+<tr><td><code>source</code></td><td>string</td><td>Yes</td><td>Path to data file</td></tr>
+<tr><td><code>transforms</code></td><td>array</td><td>No</td><td>Transform chain</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td>No</td><td>BLAKE3 hash (required for remote)</td></tr>
+</tbody></table>
+</div>
+<h2 id="dataset-types"><a class="header" href="#dataset-types">Dataset Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>parquet</code></td><td>Apache Parquet columnar format</td></tr>
+<tr><td><code>csv</code></td><td>Comma-separated values</td></tr>
+<tr><td><code>ald</code></td><td>APR Layer Data format</td></tr>
+</tbody></table>
+</div>
+<h2 id="transforms"><a class="header" href="#transforms">Transforms</a></h2>
+<pre><code class="language-yaml">transforms:
+  - &quot;filter(year &gt;= 2023)&quot;    # Row filtering
+  - &quot;select(name, revenue)&quot;   # Column selection
+  - &quot;sort(date desc)&quot;         # Ordering
+  - &quot;limit(1000)&quot;             # Row limit
+  - &quot;aggregate(sum(revenue) by month)&quot;  # Aggregation
+</code></pre>
+<h2 id="run-12"><a class="header" href="#run-12">Run</a></h2>
+<pre><code class="language-bash">cargo run --example resource_dataset
+</code></pre>
+<h2 id="widget-binding"><a class="header" href="#widget-binding">Widget Binding</a></h2>
+<pre><code class="language-yaml">widgets:
+  - id: chart
+    type: bar_chart
+    config:
+      source: &quot;datasets.sales&quot;  # Reference by name
+      x: &quot;month&quot;
+      y: &quot;revenue&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fallback-sources"><a class="header" href="#fallback-sources">Fallback Sources</a></h1>
+<p>Configure source fallback chains for resilient resource loading.</p>
+<h2 id="iiur-properties-14"><a class="header" href="#iiur-properties-14">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - fallback chain is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same hash regardless of source</td></tr>
+<tr><td>Usefulness</td><td>Resilient loading, offline support</td></tr>
+<tr><td>Reproducibility</td><td>Hash verification ensures same content</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-12"><a class="header" href="#example-12">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;resource_fallback_sources&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;fallback-sources-demo&quot;
+
+resources:
+  models:
+    classifier:
+      type: apr
+      sources:
+        - &quot;https://primary.cdn.example.com/model.apr&quot;
+        - &quot;https://backup.cdn.example.com/model.apr&quot;
+        - &quot;./local-cache/model.apr&quot;
+      hash: &quot;blake3:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2&quot;
+
+permissions:
+  network:
+    - &quot;https://primary.cdn.example.com/*&quot;
+    - &quot;https://backup.cdn.example.com/*&quot;
+
+layout:
+  type: flex
+
+widgets:
+  - id: status
+    type: markdown
+    config:
+      content: &quot;Model with fallback sources configured&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>Use <code>sources</code> (plural) instead of <code>source</code>:</p>
+<pre><code class="language-yaml">models:
+  classifier:
+    type: apr
+    sources:                    # Array of sources
+      - &quot;https://primary.cdn.example.com/model.apr&quot;
+      - &quot;https://backup.cdn.example.com/model.apr&quot;
+      - &quot;./local-cache/model.apr&quot;
+    hash: &quot;blake3:...&quot;          # Same hash for all
+</code></pre>
+<h2 id="fallback-order"><a class="header" href="#fallback-order">Fallback Order</a></h2>
+<ol>
+<li><strong>Primary</strong>: First source in array</li>
+<li><strong>Secondary</strong>: Second source (on primary failure)</li>
+<li><strong>Tertiary</strong>: Third source (on secondary failure)</li>
+<li><strong>Local</strong>: Local cache as final fallback</li>
+</ol>
+<h2 id="run-13"><a class="header" href="#run-13">Run</a></h2>
+<pre><code class="language-bash">cargo run --example resource_fallback_sources
+</code></pre>
+<h2 id="use-cases"><a class="header" href="#use-cases">Use Cases</a></h2>
+<h3 id="cdn-failover"><a class="header" href="#cdn-failover">CDN Failover</a></h3>
+<pre><code class="language-yaml">sources:
+  - &quot;https://us-east.cdn.example.com/model.apr&quot;
+  - &quot;https://eu-west.cdn.example.com/model.apr&quot;
+</code></pre>
+<h3 id="offline-support"><a class="header" href="#offline-support">Offline Support</a></h3>
+<pre><code class="language-yaml">sources:
+  - &quot;https://cdn.example.com/model.apr&quot;
+  - &quot;./cache/model.apr&quot;  # Local fallback
+</code></pre>
+<h3 id="development-override"><a class="header" href="#development-override">Development Override</a></h3>
+<pre><code class="language-yaml">sources:
+  - &quot;./dev-models/model.apr&quot;      # Dev version first
+  - &quot;https://cdn.example.com/model.apr&quot;
+</code></pre>
+<h2 id="hash-verification"><a class="header" href="#hash-verification">Hash Verification</a></h2>
+<p>The same hash is used regardless of which source succeeds:</p>
+<pre><code class="language-yaml">hash: &quot;blake3:a1b2c3...&quot;  # Verified for any source
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-2"><a class="header" href="#overview-2">Overview</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="simple-update"><a class="header" href="#simple-update">Simple Update</a></h1>
+<p>Binding recipes for connecting widgets and triggering actions.</p>
+<h2 id="binding-types"><a class="header" href="#binding-types">Binding Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Binding</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="recipes/d-bindings/./simple-update.html">Simple Update</a></td><td>Basic widget refresh</td><td><code>trigger</code>, <code>actions</code></td></tr>
+<tr><td><a href="recipes/d-bindings/./debounced.html">Debounced</a></td><td>Rate-limited updates</td><td><code>debounce_ms</code></td></tr>
+<tr><td><a href="recipes/d-bindings/./model-inference.html">Model Inference</a></td><td>ML predictions</td><td><code>inference.*</code> target</td></tr>
+<tr><td><a href="recipes/d-bindings/./chain-actions.html">Chain Actions</a></td><td>Sequential actions</td><td>Multiple actions</td></tr>
+<tr><td><a href="recipes/d-bindings/./conditional.html">Conditional</a></td><td>State-based logic</td><td><code>condition</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-15"><a class="header" href="#iiur-properties-15">IIUR Properties</a></h2>
+<p>All binding recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Bindings are independently testable</li>
+<li><strong>Idempotent</strong>: Same trigger → same actions</li>
+<li><strong>Useful</strong>: Real-world reactive patterns</li>
+<li><strong>Reproducible</strong>: Deterministic event handling</li>
+</ul>
+<h2 id="binding-structure"><a class="header" href="#binding-structure">Binding Structure</a></h2>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;widget-id.event&quot;   # Event source
+    debounce_ms: 300             # Optional debounce
+    condition: &quot;{{ expr }}&quot;      # Optional condition
+    actions:                     # Action list
+      - target: target-widget
+        action: refresh
+        input: &quot;{{ value }}&quot;
+</code></pre>
+<h2 id="events-4"><a class="header" href="#events-4">Events</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Event</th><th>Widgets</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>All inputs</td><td>Value changed</td></tr>
+<tr><td><code>click</code></td><td>Button</td><td>Button clicked</td></tr>
+<tr><td><code>submit</code></td><td>Form</td><td>Form submitted</td></tr>
+<tr><td><code>select</code></td><td>Dropdown, Table</td><td>Item selected</td></tr>
+</tbody></table>
+</div>
+<h2 id="actions"><a class="header" href="#actions">Actions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>refresh</code></td><td>Re-render widget</td></tr>
+<tr><td><code>update</code></td><td>Update widget config</td></tr>
+<tr><td><code>show</code></td><td>Make widget visible</td></tr>
+<tr><td><code>hide</code></td><td>Hide widget</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="simple-update"><a class="header" href="#simple-update">Simple Update</a></h1>
+<p>Connect widget change events to actions.</p>
+<h2 id="iiur-properties-16"><a class="header" href="#iiur-properties-16">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - bindings are independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same trigger → same action</td></tr>
+<tr><td>Usefulness</td><td>Real-time widget updates</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic event handling</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-13"><a class="header" href="#example-13">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_simple_update&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;binding-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: slider
+    type: slider
+    config:
+      label: &quot;Value&quot;
+      min: 0
+      max: 100
+      default: 50
+
+  - id: display
+    type: markdown
+    config:
+      content: &quot;Current value: {{ state.slider_value }}&quot;
+
+bindings:
+  - trigger: &quot;slider.change&quot;
+    actions:
+      - target: display
+        action: refresh
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-1"><a class="header" href="#configuration-1">Configuration</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>trigger</code></td><td>string</td><td>Yes</td><td>Event in format <code>widget.event</code></td></tr>
+<tr><td><code>actions</code></td><td>array</td><td>Yes</td><td>List of actions to execute</td></tr>
+</tbody></table>
+</div>
+<h2 id="action-options"><a class="header" href="#action-options">Action Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>target</code></td><td>string</td><td>Widget ID to act on</td></tr>
+<tr><td><code>action</code></td><td>string</td><td>Action type: <code>refresh</code>, <code>update</code>, <code>show</code>, <code>hide</code></td></tr>
+<tr><td><code>input</code></td><td>string</td><td>Template expression for input</td></tr>
+<tr><td><code>params</code></td><td>object</td><td>Additional parameters</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-14"><a class="header" href="#run-14">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_simple_update
+</code></pre>
+<h2 id="common-patterns-1"><a class="header" href="#common-patterns-1">Common Patterns</a></h2>
+<h3 id="slider--display"><a class="header" href="#slider--display">Slider → Display</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;slider.change&quot;
+    actions:
+      - target: display
+        action: refresh
+</code></pre>
+<h3 id="input--validation"><a class="header" href="#input--validation">Input → Validation</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;email.change&quot;
+    actions:
+      - target: email-error
+        action: refresh
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="debounced"><a class="header" href="#debounced">Debounced</a></h1>
+<p>Debounce rapid input changes to reduce action frequency.</p>
+<h2 id="iiur-properties-17"><a class="header" href="#iiur-properties-17">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - debounce is per-binding</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - last value wins</td></tr>
+<tr><td>Usefulness</td><td>Search, validation, API calls</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic debounce timing</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-14"><a class="header" href="#example-14">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_debounced&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;debounce-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: search
+    type: textbox
+    config:
+      label: &quot;Search&quot;
+      placeholder: &quot;Type to search...&quot;
+
+  - id: results
+    type: data_table
+    config:
+      title: &quot;Search Results&quot;
+
+bindings:
+  - trigger: &quot;search.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: results
+        action: refresh
+        input: &quot;{{ search.value }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-2"><a class="header" href="#configuration-2">Configuration</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>debounce_ms</code></td><td>u32</td><td>0</td><td>Milliseconds to wait before executing</td></tr>
+</tbody></table>
+</div>
+<h2 id="how-debounce-works"><a class="header" href="#how-debounce-works">How Debounce Works</a></h2>
+<pre><code>User types: H-e-l-l-o
+Events:     [H][e][l][l][o]
+            |  |  |  |  |
+            ↓  ↓  ↓  ↓  ↓
+Debounce:   [cancel][cancel][cancel][cancel][execute after 300ms]
+</code></pre>
+<p>Only the final value triggers the action after the debounce period.</p>
+<h2 id="run-15"><a class="header" href="#run-15">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_debounced
+</code></pre>
+<h2 id="recommended-debounce-times"><a class="header" href="#recommended-debounce-times">Recommended Debounce Times</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Use Case</th><th>Debounce (ms)</th></tr></thead><tbody>
+<tr><td>Search autocomplete</td><td>200-300</td></tr>
+<tr><td>Form validation</td><td>150-250</td></tr>
+<tr><td>API calls</td><td>300-500</td></tr>
+<tr><td>Model inference</td><td>500-1000</td></tr>
+</tbody></table>
+</div>
+<h2 id="without-debounce"><a class="header" href="#without-debounce">Without Debounce</a></h2>
+<p>Without debounce, every keystroke triggers an action:</p>
+<pre><code class="language-yaml"># DON'T: Causes excessive API calls
+bindings:
+  - trigger: &quot;search.change&quot;
+    actions:
+      - target: api.search
+</code></pre>
+<h2 id="with-debounce"><a class="header" href="#with-debounce">With Debounce</a></h2>
+<pre><code class="language-yaml"># DO: Waits for user to stop typing
+bindings:
+  - trigger: &quot;search.change&quot;
+    debounce_ms: 300
+    actions:
+      - target: api.search
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="model-inference"><a class="header" href="#model-inference">Model Inference</a></h1>
+<p>Trigger model inference on user input.</p>
+<h2 id="iiur-properties-18"><a class="header" href="#iiur-properties-18">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - inference is per-model</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same input → same output</td></tr>
+<tr><td>Usefulness</td><td>Real-time ML predictions</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic model execution</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-15"><a class="header" href="#example-15">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_model_inference&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;inference-binding-demo&quot;
+
+resources:
+  models:
+    sentiment:
+      type: apr
+      source: &quot;./models/sentiment.apr&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: text-input
+    type: textbox
+    config:
+      label: &quot;Enter text for analysis&quot;
+
+  - id: sentiment-gauge
+    type: gauge
+    config:
+      title: &quot;Sentiment&quot;
+      min: -1
+      max: 1
+      value: &quot;{{ inference.sentiment.score }}&quot;
+
+  - id: confidence
+    type: markdown
+    config:
+      content: &quot;Confidence: {{ inference.sentiment.confidence | percentage }}&quot;
+
+bindings:
+  - trigger: &quot;text-input.change&quot;
+    debounce_ms: 500
+    actions:
+      - target: inference.sentiment
+        input: &quot;{{ text-input.value }}&quot;
+      - target: sentiment-gauge
+        action: refresh
+      - target: confidence
+        action: refresh
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-3"><a class="header" href="#configuration-3">Configuration</a></h2>
+<h3 id="inference-action"><a class="header" href="#inference-action">Inference Action</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: inference.model-name  # models.&lt;name&gt;
+    input: &quot;{{ widget.value }}&quot;   # Input data
+</code></pre>
+<h3 id="accessing-results"><a class="header" href="#accessing-results">Accessing Results</a></h3>
+<pre><code class="language-yaml"># In widget config
+value: &quot;{{ inference.sentiment.score }}&quot;
+content: &quot;{{ inference.sentiment.confidence }}&quot;
+</code></pre>
+<h2 id="run-16"><a class="header" href="#run-16">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_model_inference
+</code></pre>
+<h2 id="inference-flow"><a class="header" href="#inference-flow">Inference Flow</a></h2>
+<pre><code>1. User types text
+2. Debounce waits 500ms
+3. Inference action runs model
+4. Results stored in inference.sentiment.*
+5. Dependent widgets refresh
+</code></pre>
+<h2 id="best-practices-1"><a class="header" href="#best-practices-1">Best Practices</a></h2>
+<h3 id="always-debounce"><a class="header" href="#always-debounce">Always Debounce</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;input.change&quot;
+    debounce_ms: 500  # Prevent excessive inference
+    actions:
+      - target: inference.model
+</code></pre>
+<h3 id="chain-with-refresh"><a class="header" href="#chain-with-refresh">Chain with Refresh</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: inference.sentiment   # Run inference
+  - target: result-gauge          # Then refresh displays
+    action: refresh
+</code></pre>
+<h3 id="display-loading-state"><a class="header" href="#display-loading-state">Display Loading State</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: status
+    action: update
+    params: { content: &quot;Analyzing...&quot; }
+  - target: inference.sentiment
+  - target: status
+    action: update
+    params: { content: &quot;Done&quot; }
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chain-actions"><a class="header" href="#chain-actions">Chain Actions</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="conditional"><a class="header" href="#conditional">Conditional</a></h1>
+<p>Chain multiple actions from a single trigger event.</p>
+<h2 id="iiur-properties-19"><a class="header" href="#iiur-properties-19">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - action chains are independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same sequence every time</td></tr>
+<tr><td>Usefulness</td><td>Complex workflows, multi-widget updates</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic action ordering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-16"><a class="header" href="#example-16">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_chain_actions&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;chain-actions-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: submit-btn
+    type: button
+    config:
+      label: &quot;Submit&quot;
+
+  - id: status
+    type: markdown
+    config:
+      content: &quot;Ready&quot;
+
+  - id: results
+    type: data_table
+    config:
+      title: &quot;Results&quot;
+
+  - id: chart
+    type: bar_chart
+    config:
+      title: &quot;Visualization&quot;
+
+bindings:
+  - trigger: &quot;submit-btn.click&quot;
+    actions:
+      - target: status
+        action: update
+        params:
+          content: &quot;Processing...&quot;
+      - target: results
+        action: refresh
+      - target: chart
+        action: refresh
+      - target: status
+        action: update
+        params:
+          content: &quot;Complete&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-4"><a class="header" href="#configuration-4">Configuration</a></h2>
+<p>Actions execute in sequence:</p>
+<pre><code class="language-yaml">actions:
+  - target: widget-1   # Step 1
+    action: action-1
+  - target: widget-2   # Step 2
+    action: action-2
+  - target: widget-3   # Step 3
+    action: action-3
+</code></pre>
+<h2 id="run-17"><a class="header" href="#run-17">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_chain_actions
+</code></pre>
+<h2 id="execution-order"><a class="header" href="#execution-order">Execution Order</a></h2>
+<p>Actions execute sequentially, not in parallel:</p>
+<pre><code>Trigger → Action 1 → Action 2 → Action 3 → Done
+</code></pre>
+<h2 id="common-patterns-2"><a class="header" href="#common-patterns-2">Common Patterns</a></h2>
+<h3 id="status--process--status"><a class="header" href="#status--process--status">Status → Process → Status</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: status
+    action: update
+    params: { content: &quot;Loading...&quot; }
+  - target: data
+    action: refresh
+  - target: status
+    action: update
+    params: { content: &quot;Done&quot; }
+</code></pre>
+<h3 id="refresh-multiple-widgets"><a class="header" href="#refresh-multiple-widgets">Refresh Multiple Widgets</a></h3>
+<pre><code class="language-yaml">actions:
+  - target: table
+    action: refresh
+  - target: chart
+    action: refresh
+  - target: summary
+    action: refresh
+</code></pre>
+<h3 id="cascade-updates"><a class="header" href="#cascade-updates">Cascade Updates</a></h3>
+<pre><code class="language-yaml"># Dropdown changes filter → table → chart
+actions:
+  - target: table
+    action: refresh
+    input: &quot;{{ filter.value }}&quot;
+  - target: chart
+    action: refresh
+</code></pre>
+<h2 id="action-types"><a class="header" href="#action-types">Action Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Action</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>refresh</code></td><td>Re-render with current data</td></tr>
+<tr><td><code>update</code></td><td>Update config params</td></tr>
+<tr><td><code>show</code></td><td>Make visible</td></tr>
+<tr><td><code>hide</code></td><td>Make invisible</td></tr>
+<tr><td><code>reset</code></td><td>Reset to default state</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="conditional"><a class="header" href="#conditional">Conditional</a></h1>
+<p>Execute actions conditionally based on state.</p>
+<h2 id="iiur-properties-20"><a class="header" href="#iiur-properties-20">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - conditions are per-binding</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same state → same result</td></tr>
+<tr><td>Usefulness</td><td>Dynamic UI, visibility toggling</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic condition evaluation</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-17"><a class="header" href="#example-17">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;binding_conditional&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;conditional-binding-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: age-input
+    type: slider
+    config:
+      label: &quot;Age&quot;
+      min: 0
+      max: 100
+      default: 18
+
+  - id: adult-content
+    type: markdown
+    config:
+      content: &quot;Adult content section&quot;
+      visible: false
+
+  - id: minor-content
+    type: markdown
+    config:
+      content: &quot;Minor content section&quot;
+      visible: true
+
+bindings:
+  - trigger: &quot;age-input.change&quot;
+    condition: &quot;{{ age-input.value &gt;= 18 }}&quot;
+    actions:
+      - target: adult-content
+        action: show
+      - target: minor-content
+        action: hide
+
+  - trigger: &quot;age-input.change&quot;
+    condition: &quot;{{ age-input.value &lt; 18 }}&quot;
+    actions:
+      - target: adult-content
+        action: hide
+      - target: minor-content
+        action: show
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-5"><a class="header" href="#configuration-5">Configuration</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>condition</code></td><td>string</td><td>Template expression evaluating to boolean</td></tr>
+</tbody></table>
+</div>
+<h2 id="condition-syntax"><a class="header" href="#condition-syntax">Condition Syntax</a></h2>
+<pre><code class="language-yaml">condition: &quot;{{ expression }}&quot;
+</code></pre>
+<h3 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h3>
+<pre><code class="language-yaml">condition: &quot;{{ value &gt;= 18 }}&quot;      # Greater or equal
+condition: &quot;{{ value &lt; 100 }}&quot;      # Less than
+condition: &quot;{{ value == 'active' }}&quot; # Equality
+condition: &quot;{{ value != null }}&quot;    # Inequality
+</code></pre>
+<h3 id="logical-operators"><a class="header" href="#logical-operators">Logical Operators</a></h3>
+<pre><code class="language-yaml">condition: &quot;{{ age &gt;= 18 &amp;&amp; verified }}&quot;  # AND
+condition: &quot;{{ admin || moderator }}&quot;     # OR
+condition: &quot;{{ !disabled }}&quot;              # NOT
+</code></pre>
+<h2 id="run-18"><a class="header" href="#run-18">Run</a></h2>
+<pre><code class="language-bash">cargo run --example binding_conditional
+</code></pre>
+<h2 id="common-patterns-3"><a class="header" href="#common-patterns-3">Common Patterns</a></h2>
+<h3 id="showhide-based-on-value"><a class="header" href="#showhide-based-on-value">Show/Hide Based on Value</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;toggle.change&quot;
+    condition: &quot;{{ toggle.checked }}&quot;
+    actions:
+      - target: panel
+        action: show
+
+  - trigger: &quot;toggle.change&quot;
+    condition: &quot;{{ !toggle.checked }}&quot;
+    actions:
+      - target: panel
+        action: hide
+</code></pre>
+<h3 id="validate-input"><a class="header" href="#validate-input">Validate Input</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;email.change&quot;
+    condition: &quot;{{ email.value | is_email }}&quot;
+    actions:
+      - target: submit-btn
+        action: enable
+
+  - trigger: &quot;email.change&quot;
+    condition: &quot;{{ !(email.value | is_email) }}&quot;
+    actions:
+      - target: submit-btn
+        action: disable
+</code></pre>
+<h3 id="role-based-display"><a class="header" href="#role-based-display">Role-Based Display</a></h3>
+<pre><code class="language-yaml">bindings:
+  - trigger: &quot;scene.load&quot;
+    condition: &quot;{{ user.role == 'admin' }}&quot;
+    actions:
+      - target: admin-panel
+        action: show
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-3"><a class="header" href="#overview-3">Overview</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="dark-preset"><a class="header" href="#dark-preset">Dark Preset</a></h1>
+<p>Theming recipes for customizing scene appearance.</p>
+<h2 id="theme-options"><a class="header" href="#theme-options">Theme Options</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Theme</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="recipes/e-theming/./dark-preset.html">Dark Preset</a></td><td>Dark mode</td><td><code>preset: &quot;dark&quot;</code></td></tr>
+<tr><td><a href="recipes/e-theming/./light-preset.html">Light Preset</a></td><td>Light mode</td><td><code>preset: &quot;light&quot;</code></td></tr>
+<tr><td><a href="recipes/e-theming/./custom-colors.html">Custom Colors</a></td><td>Brand colors</td><td><code>colors</code></td></tr>
+<tr><td><a href="recipes/e-theming/./custom-fonts.html">Custom Fonts</a></td><td>Typography</td><td><code>fonts</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-21"><a class="header" href="#iiur-properties-21">IIUR Properties</a></h2>
+<p>All theme recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Theme changes don't affect logic</li>
+<li><strong>Idempotent</strong>: Same theme config → same appearance</li>
+<li><strong>Useful</strong>: Real-world UI customization</li>
+<li><strong>Reproducible</strong>: Consistent rendering</li>
+</ul>
+<h2 id="theme-structure"><a class="header" href="#theme-structure">Theme Structure</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;dark&quot;       # Base theme
+  colors:              # Color overrides
+    primary: &quot;#3498db&quot;
+    background: &quot;#1a1a2e&quot;
+  fonts:               # Typography
+    heading: &quot;Inter, sans-serif&quot;
+    body: &quot;Source Sans Pro, sans-serif&quot;
+</code></pre>
+<h2 id="presets"><a class="header" href="#presets">Presets</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Preset</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>light</code></td><td>Light background, dark text</td></tr>
+<tr><td><code>dark</code></td><td>Dark background, light text</td></tr>
+<tr><td><code>system</code></td><td>Follow OS preference</td></tr>
+</tbody></table>
+</div>
+<h2 id="color-tokens"><a class="header" href="#color-tokens">Color Tokens</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Usage</th></tr></thead><tbody>
+<tr><td><code>primary</code></td><td>Buttons, links, accents</td></tr>
+<tr><td><code>secondary</code></td><td>Secondary actions</td></tr>
+<tr><td><code>background</code></td><td>Page background</td></tr>
+<tr><td><code>surface</code></td><td>Card, panel backgrounds</td></tr>
+<tr><td><code>text</code></td><td>Body text</td></tr>
+<tr><td><code>error</code></td><td>Error messages</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="dark-preset"><a class="header" href="#dark-preset">Dark Preset</a></h1>
+<p>Apply dark theme preset to scenes.</p>
+<h2 id="iiur-properties-22"><a class="header" href="#iiur-properties-22">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - theme is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same appearance</td></tr>
+<tr><td>Usefulness</td><td>Dark mode UI, reduced eye strain</td></tr>
+<tr><td>Reproducibility</td><td>Consistent dark theme rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-18"><a class="header" href="#example-18">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_preset_dark&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;dark-theme-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Dark Theme Demo&quot;
+
+  - id: description
+    type: markdown
+    config:
+      content: &quot;This scene uses the dark theme preset&quot;
+
+theme:
+  preset: &quot;dark&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-6"><a class="header" href="#configuration-6">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;dark&quot;
+</code></pre>
+<h2 id="dark-theme-colors"><a class="header" href="#dark-theme-colors">Dark Theme Colors</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Default Value</th></tr></thead><tbody>
+<tr><td><code>background</code></td><td><code>#1a1a2e</code></td></tr>
+<tr><td><code>surface</code></td><td><code>#16213e</code></td></tr>
+<tr><td><code>primary</code></td><td><code>#0f3460</code></td></tr>
+<tr><td><code>text</code></td><td><code>#e8e8e8</code></td></tr>
+<tr><td><code>error</code></td><td><code>#e74c3c</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="run-19"><a class="header" href="#run-19">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_preset_dark
+</code></pre>
+<h2 id="when-to-use-2"><a class="header" href="#when-to-use-2">When to Use</a></h2>
+<ul>
+<li>Low-light environments</li>
+<li>Reducing eye strain</li>
+<li>OLED screen optimization</li>
+<li>User preference</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="light-preset"><a class="header" href="#light-preset">Light Preset</a></h1>
+<p>Apply light theme preset to scenes.</p>
+<h2 id="iiur-properties-23"><a class="header" href="#iiur-properties-23">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - theme is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same appearance</td></tr>
+<tr><td>Usefulness</td><td>Standard light mode UI</td></tr>
+<tr><td>Reproducibility</td><td>Consistent light theme rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-19"><a class="header" href="#example-19">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_preset_light&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;light-theme-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Light Theme Demo&quot;
+
+theme:
+  preset: &quot;light&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-7"><a class="header" href="#configuration-7">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;light&quot;
+</code></pre>
+<h2 id="light-theme-colors"><a class="header" href="#light-theme-colors">Light Theme Colors</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Default Value</th></tr></thead><tbody>
+<tr><td><code>background</code></td><td><code>#ffffff</code></td></tr>
+<tr><td><code>surface</code></td><td><code>#f8f9fa</code></td></tr>
+<tr><td><code>primary</code></td><td><code>#3498db</code></td></tr>
+<tr><td><code>text</code></td><td><code>#2c3e50</code></td></tr>
+<tr><td><code>error</code></td><td><code>#e74c3c</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="run-20"><a class="header" href="#run-20">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_preset_light
+</code></pre>
+<h2 id="when-to-use-3"><a class="header" href="#when-to-use-3">When to Use</a></h2>
+<ul>
+<li>Well-lit environments</li>
+<li>Print-friendly layouts</li>
+<li>Default/standard appearance</li>
+<li>High contrast readability</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="custom-colors"><a class="header" href="#custom-colors">Custom Colors</a></h1>
+<p>Override theme colors with custom values.</p>
+<h2 id="iiur-properties-24"><a class="header" href="#iiur-properties-24">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - color overrides are independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same colors → same appearance</td></tr>
+<tr><td>Usefulness</td><td>Brand identity, custom design</td></tr>
+<tr><td>Reproducibility</td><td>Consistent color rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-20"><a class="header" href="#example-20">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_custom_colors&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;custom-colors-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Custom Colors Demo&quot;
+
+theme:
+  preset: &quot;light&quot;
+  colors:
+    primary: &quot;#3498db&quot;
+    secondary: &quot;#2ecc71&quot;
+    background: &quot;#f8f9fa&quot;
+    surface: &quot;#ffffff&quot;
+    text: &quot;#2c3e50&quot;
+    error: &quot;#e74c3c&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-8"><a class="header" href="#configuration-8">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;light&quot;   # Base preset
+  colors:           # Overrides
+    primary: &quot;#3498db&quot;
+    secondary: &quot;#2ecc71&quot;
+    background: &quot;#f8f9fa&quot;
+    surface: &quot;#ffffff&quot;
+    text: &quot;#2c3e50&quot;
+    error: &quot;#e74c3c&quot;
+</code></pre>
+<h2 id="color-tokens-1"><a class="header" href="#color-tokens-1">Color Tokens</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Usage</th></tr></thead><tbody>
+<tr><td><code>primary</code></td><td>Primary buttons, links, accents</td></tr>
+<tr><td><code>secondary</code></td><td>Secondary buttons, badges</td></tr>
+<tr><td><code>background</code></td><td>Page background</td></tr>
+<tr><td><code>surface</code></td><td>Card, panel backgrounds</td></tr>
+<tr><td><code>text</code></td><td>Body text, labels</td></tr>
+<tr><td><code>error</code></td><td>Error messages, validation</td></tr>
+<tr><td><code>warning</code></td><td>Warning alerts</td></tr>
+<tr><td><code>success</code></td><td>Success messages</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-21"><a class="header" href="#run-21">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_custom_colors
+</code></pre>
+<h2 id="color-format"><a class="header" href="#color-format">Color Format</a></h2>
+<p>Colors support hex notation:</p>
+<pre><code class="language-yaml">colors:
+  primary: &quot;#3498db&quot;      # Full hex
+  secondary: &quot;#2ec&quot;       # Short hex
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="custom-fonts"><a class="header" href="#custom-fonts">Custom Fonts</a></h1>
+<p>Configure custom typography for headings and body text.</p>
+<h2 id="iiur-properties-25"><a class="header" href="#iiur-properties-25">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - font config is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same fonts → same typography</td></tr>
+<tr><td>Usefulness</td><td>Brand typography, readability</td></tr>
+<tr><td>Reproducibility</td><td>Consistent font rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-21"><a class="header" href="#example-21">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_custom_fonts&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;custom-fonts-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;Custom Fonts Demo&quot;
+
+theme:
+  preset: &quot;light&quot;
+  fonts:
+    heading: &quot;Inter, system-ui, sans-serif&quot;
+    body: &quot;Source Sans Pro, system-ui, sans-serif&quot;
+    mono: &quot;JetBrains Mono, Fira Code, monospace&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-9"><a class="header" href="#configuration-9">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  fonts:
+    heading: &quot;Inter, system-ui, sans-serif&quot;
+    body: &quot;Source Sans Pro, system-ui, sans-serif&quot;
+    mono: &quot;JetBrains Mono, Fira Code, monospace&quot;
+</code></pre>
+<h2 id="font-tokens"><a class="header" href="#font-tokens">Font Tokens</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Usage</th></tr></thead><tbody>
+<tr><td><code>heading</code></td><td>H1-H6 headings</td></tr>
+<tr><td><code>body</code></td><td>Paragraphs, labels, inputs</td></tr>
+<tr><td><code>mono</code></td><td>Code blocks, tables</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-22"><a class="header" href="#run-22">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_custom_fonts
+</code></pre>
+<h2 id="font-stack-best-practices"><a class="header" href="#font-stack-best-practices">Font Stack Best Practices</a></h2>
+<p>Always include fallbacks:</p>
+<pre><code class="language-yaml"># Good: Multiple fallbacks
+heading: &quot;Inter, system-ui, sans-serif&quot;
+
+# Bad: No fallbacks
+heading: &quot;CustomFont&quot;
+</code></pre>
+<h2 id="system-font-stacks"><a class="header" href="#system-font-stacks">System Font Stacks</a></h2>
+<pre><code class="language-yaml"># Modern system fonts
+fonts:
+  heading: &quot;system-ui, -apple-system, BlinkMacSystemFont, sans-serif&quot;
+  body: &quot;system-ui, sans-serif&quot;
+  mono: &quot;ui-monospace, SFMono-Regular, monospace&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-4"><a class="header" href="#overview-4">Overview</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="network"><a class="header" href="#network">Network</a></h1>
+<p>Permission recipes for controlling scene capabilities.</p>
+<h2 id="permission-types"><a class="header" href="#permission-types">Permission Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Permission</th><th>Purpose</th><th>Key Config</th></tr></thead><tbody>
+<tr><td><a href="recipes/f-permissions/./network.html">Network</a></td><td>HTTP access</td><td><code>network</code> patterns</td></tr>
+<tr><td><a href="recipes/f-permissions/./filesystem.html">Filesystem</a></td><td>File access</td><td><code>filesystem</code> patterns</td></tr>
+<tr><td><a href="recipes/f-permissions/./minimal.html">Minimal</a></td><td>No permissions</td><td>Empty arrays</td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-26"><a class="header" href="#iiur-properties-26">IIUR Properties</a></h2>
+<p>All permission recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Permissions are per-scene</li>
+<li><strong>Idempotent</strong>: Same permissions → same capabilities</li>
+<li><strong>Useful</strong>: Security through least privilege</li>
+<li><strong>Reproducible</strong>: Predictable security model</li>
+</ul>
+<h2 id="permission-structure"><a class="header" href="#permission-structure">Permission Structure</a></h2>
+<pre><code class="language-yaml">permissions:
+  network:
+    - &quot;https://api.example.com/*&quot;
+  filesystem:
+    - &quot;./data/*&quot;
+  clipboard: false
+  camera: false
+  microphone: false
+</code></pre>
+<h2 id="security-model"><a class="header" href="#security-model">Security Model</a></h2>
+<p>Presentar follows <strong>principle of least privilege</strong>:</p>
+<ol>
+<li>All permissions denied by default</li>
+<li>Explicitly grant only what's needed</li>
+<li>Use patterns to limit scope</li>
+<li>Review permissions before running</li>
+</ol>
+<h2 id="network-patterns"><a class="header" href="#network-patterns">Network Patterns</a></h2>
+<pre><code class="language-yaml">network:
+  - &quot;https://api.example.com/*&quot;    # Specific domain
+  - &quot;https://*.cdn.example.com/*&quot;  # Wildcard subdomain
+</code></pre>
+<h2 id="filesystem-patterns"><a class="header" href="#filesystem-patterns">Filesystem Patterns</a></h2>
+<pre><code class="language-yaml">filesystem:
+  - &quot;./data/*&quot;      # Read from data directory
+  - &quot;./output/*&quot;    # Write to output directory
+</code></pre>
+<h2 id="boolean-permissions"><a class="header" href="#boolean-permissions">Boolean Permissions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Permission</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>clipboard</code></td><td>false</td><td>Read/write clipboard</td></tr>
+<tr><td><code>camera</code></td><td>false</td><td>Access camera</td></tr>
+<tr><td><code>microphone</code></td><td>false</td><td>Access microphone</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="network"><a class="header" href="#network">Network</a></h1>
+<p>Grant network access to specific domains.</p>
+<h2 id="iiur-properties-27"><a class="header" href="#iiur-properties-27">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - network permissions are per-scene</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same permissions → same access</td></tr>
+<tr><td>Usefulness</td><td>API calls, CDN resources</td></tr>
+<tr><td>Reproducibility</td><td>Predictable network access</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-22"><a class="header" href="#example-22">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;permission_network&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;network-permission-demo&quot;
+
+resources:
+  models:
+    api_model:
+      type: apr
+      source: &quot;https://api.example.com/model.apr&quot;
+      hash: &quot;blake3:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890&quot;
+
+permissions:
+  network:
+    - &quot;https://api.example.com/*&quot;
+    - &quot;https://cdn.example.com/*&quot;
+  clipboard: false
+  camera: false
+
+layout:
+  type: flex
+
+widgets:
+  - id: status
+    type: markdown
+    config:
+      content: &quot;Network access granted to api.example.com&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-10"><a class="header" href="#configuration-10">Configuration</a></h2>
+<pre><code class="language-yaml">permissions:
+  network:
+    - &quot;https://api.example.com/*&quot;
+    - &quot;https://cdn.example.com/*&quot;
+</code></pre>
+<h2 id="pattern-syntax"><a class="header" href="#pattern-syntax">Pattern Syntax</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody>
+<tr><td><code>https://example.com/*</code></td><td>All paths on domain</td></tr>
+<tr><td><code>https://*.example.com/*</code></td><td>All subdomains</td></tr>
+<tr><td><code>https://api.example.com/v1/*</code></td><td>Specific path prefix</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-23"><a class="header" href="#run-23">Run</a></h2>
+<pre><code class="language-bash">cargo run --example permission_network
+</code></pre>
+<h2 id="security-best-practices"><a class="header" href="#security-best-practices">Security Best Practices</a></h2>
+<pre><code class="language-yaml"># Good: Specific domain
+network:
+  - &quot;https://api.example.com/*&quot;
+
+# Bad: Too broad
+network:
+  - &quot;https://*&quot;
+</code></pre>
+<h2 id="remote-resources"><a class="header" href="#remote-resources">Remote Resources</a></h2>
+<p>Network permissions are <strong>required</strong> for remote resources:</p>
+<pre><code class="language-yaml">resources:
+  models:
+    classifier:
+      source: &quot;https://cdn.example.com/model.apr&quot;
+      hash: &quot;blake3:...&quot;  # Required
+
+permissions:
+  network:
+    - &quot;https://cdn.example.com/*&quot;  # Must match source
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="filesystem"><a class="header" href="#filesystem">Filesystem</a></h1>
+<p>Grant filesystem access to specific paths.</p>
+<h2 id="iiur-properties-28"><a class="header" href="#iiur-properties-28">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - filesystem permissions are per-scene</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same permissions → same access</td></tr>
+<tr><td>Usefulness</td><td>Local data files, output directories</td></tr>
+<tr><td>Reproducibility</td><td>Predictable file access</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-23"><a class="header" href="#example-23">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;permission_filesystem&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;filesystem-permission-demo&quot;
+
+resources:
+  datasets:
+    data:
+      type: csv
+      source: &quot;./data/input.csv&quot;
+
+permissions:
+  filesystem:
+    - &quot;./data/*&quot;
+    - &quot;./output/*&quot;
+  network: []
+  clipboard: false
+
+layout:
+  type: flex
+
+widgets:
+  - id: file-browser
+    type: file_browser
+    config:
+      root: &quot;./data&quot;
+      allowed_extensions:
+        - &quot;.csv&quot;
+        - &quot;.json&quot;
+        - &quot;.parquet&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-11"><a class="header" href="#configuration-11">Configuration</a></h2>
+<pre><code class="language-yaml">permissions:
+  filesystem:
+    - &quot;./data/*&quot;    # Read access
+    - &quot;./output/*&quot;  # Write access
+</code></pre>
+<h2 id="pattern-syntax-1"><a class="header" href="#pattern-syntax-1">Pattern Syntax</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody>
+<tr><td><code>./data/*</code></td><td>All files in ./data</td></tr>
+<tr><td><code>./data/**/*</code></td><td>Recursive subdirectories</td></tr>
+<tr><td><code>./data/*.csv</code></td><td>Only CSV files</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-24"><a class="header" href="#run-24">Run</a></h2>
+<pre><code class="language-bash">cargo run --example permission_filesystem
+</code></pre>
+<h2 id="security-best-practices-1"><a class="header" href="#security-best-practices-1">Security Best Practices</a></h2>
+<pre><code class="language-yaml"># Good: Limited to specific directories
+filesystem:
+  - &quot;./data/*&quot;
+  - &quot;./output/*&quot;
+
+# Bad: Too broad
+filesystem:
+  - &quot;./*&quot;
+  - &quot;/*&quot;
+</code></pre>
+<h2 id="read-vs-write"><a class="header" href="#read-vs-write">Read vs Write</a></h2>
+<p>Pattern permissions allow both read and write. Use separate directories for input and output:</p>
+<pre><code class="language-yaml">filesystem:
+  - &quot;./input/*&quot;   # Source data (read)
+  - &quot;./output/*&quot;  # Results (write)
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="minimal"><a class="header" href="#minimal">Minimal</a></h1>
+<p>Demonstrate principle of least privilege with minimal permissions.</p>
+<h2 id="iiur-properties-29"><a class="header" href="#iiur-properties-29">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - no external dependencies</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - pure client-side</td></tr>
+<tr><td>Usefulness</td><td>Offline tools, calculators</td></tr>
+<tr><td>Reproducibility</td><td>No external state</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-24"><a class="header" href="#example-24">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;permission_minimal&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;minimal-permission-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: calculator
+    type: markdown
+    config:
+      content: &quot;Offline Calculator - No permissions required&quot;
+
+  - id: input-a
+    type: textbox
+    config:
+      label: &quot;Number A&quot;
+
+  - id: input-b
+    type: textbox
+    config:
+      label: &quot;Number B&quot;
+
+  - id: result
+    type: markdown
+    config:
+      content: &quot;Result: {{ state.result }}&quot;
+
+permissions:
+  network: []
+  filesystem: []
+  clipboard: false
+  camera: false
+  microphone: false
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration-12"><a class="header" href="#configuration-12">Configuration</a></h2>
+<pre><code class="language-yaml">permissions:
+  network: []       # No network access
+  filesystem: []    # No file access
+  clipboard: false  # No clipboard
+  camera: false     # No camera
+  microphone: false # No microphone
+</code></pre>
+<h2 id="run-25"><a class="header" href="#run-25">Run</a></h2>
+<pre><code class="language-bash">cargo run --example permission_minimal
+</code></pre>
+<h2 id="use-cases-1"><a class="header" href="#use-cases-1">Use Cases</a></h2>
+<ul>
+<li><strong>Calculators</strong>: Pure computation</li>
+<li><strong>Converters</strong>: Unit/format conversion</li>
+<li><strong>Validators</strong>: Input validation</li>
+<li><strong>Editors</strong>: Text/data editing</li>
+<li><strong>Games</strong>: Simple games</li>
+</ul>
+<h2 id="benefits"><a class="header" href="#benefits">Benefits</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Benefit</th><th>Description</th></tr></thead><tbody>
+<tr><td>Security</td><td>No attack surface</td></tr>
+<tr><td>Privacy</td><td>No data leakage</td></tr>
+<tr><td>Offline</td><td>Works without network</td></tr>
+<tr><td>Trust</td><td>Users can verify safety</td></tr>
+</tbody></table>
+</div>
+<h2 id="principle-of-least-privilege"><a class="header" href="#principle-of-least-privilege">Principle of Least Privilege</a></h2>
+<p>Only request permissions that are <strong>actually needed</strong>:</p>
+<pre><code class="language-yaml"># Good: No permissions for offline tool
+permissions:
+  network: []
+  filesystem: []
+
+# Bad: Unnecessary permissions
+permissions:
+  network:
+    - &quot;https://*&quot;  # Why does a calculator need network?
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview-5"><a class="header" href="#overview-5">Overview</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="select"><a class="header" href="#select">Select</a></h1>
+<p>Expression recipes for data transformation and formatting.</p>
+<h2 id="expression-types"><a class="header" href="#expression-types">Expression Types</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Expression</th><th>Purpose</th><th>Key Transforms</th></tr></thead><tbody>
+<tr><td><a href="recipes/g-expressions/./select.html">Select</a></td><td>Field extraction</td><td><code>select('field')</code></td></tr>
+<tr><td><a href="recipes/g-expressions/./filter.html">Filter</a></td><td>Row filtering</td><td><code>filter('condition')</code></td></tr>
+<tr><td><a href="recipes/g-expressions/./sort-limit.html">Sort &amp; Limit</a></td><td>Ordering</td><td><code>sort()</code>, <code>limit()</code></td></tr>
+<tr><td><a href="recipes/g-expressions/./aggregation.html">Aggregation</a></td><td>Statistics</td><td><code>sum()</code>, <code>mean()</code>, <code>count()</code></td></tr>
+<tr><td><a href="recipes/g-expressions/./format.html">Format</a></td><td>Display formatting</td><td><code>format()</code>, <code>date()</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="iiur-properties-30"><a class="header" href="#iiur-properties-30">IIUR Properties</a></h2>
+<p>All expression recipes follow IIUR principles:</p>
+<ul>
+<li><strong>Isolated</strong>: Expressions don't mutate source data</li>
+<li><strong>Idempotent</strong>: Same input → same output</li>
+<li><strong>Useful</strong>: Real-world data transformations</li>
+<li><strong>Reproducible</strong>: Deterministic evaluation</li>
+</ul>
+<h2 id="expression-syntax"><a class="header" href="#expression-syntax">Expression Syntax</a></h2>
+<pre><code class="language-yaml">&quot;{{ source | transform1 | transform2 }}&quot;
+</code></pre>
+<h2 id="pipe-chaining"><a class="header" href="#pipe-chaining">Pipe Chaining</a></h2>
+<p>Transforms are applied left-to-right:</p>
+<pre><code class="language-yaml">&quot;{{ data | filter('active') | sort('name') | limit(10) }}&quot;
+</code></pre>
+<h2 id="data-sources"><a class="header" href="#data-sources">Data Sources</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Source</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>datasets.name</code></td><td>Dataset resource</td></tr>
+<tr><td><code>inference.model</code></td><td>Model output</td></tr>
+<tr><td><code>state.field</code></td><td>Widget state</td></tr>
+<tr><td><code>widget.value</code></td><td>Widget value</td></tr>
+</tbody></table>
+</div>
+<h2 id="common-transforms"><a class="header" href="#common-transforms">Common Transforms</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Transform</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>select('field')</code></td><td>Extract field</td></tr>
+<tr><td><code>filter('cond')</code></td><td>Filter rows</td></tr>
+<tr><td><code>sort('field dir')</code></td><td>Sort rows</td></tr>
+<tr><td><code>limit(n)</code></td><td>Limit rows</td></tr>
+<tr><td><code>format('spec')</code></td><td>Format value</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="select"><a class="header" href="#select">Select</a></h1>
+<p>Use <code>select()</code> transform to extract fields from data.</p>
+<h2 id="iiur-properties-31"><a class="header" href="#iiur-properties-31">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same field → same value</td></tr>
+<tr><td>Usefulness</td><td>Field extraction, data access</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic selection</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-25"><a class="header" href="#example-25">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_select&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-select-demo&quot;
+
+resources:
+  models:
+    classifier:
+      type: apr
+      source: &quot;./models/classifier.apr&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: confidence
+    type: gauge
+    config:
+      title: &quot;Confidence&quot;
+      value: &quot;{{ inference.classifier | select('confidence') | percentage }}&quot;
+      min: 0
+      max: 100
+
+  - id: label
+    type: markdown
+    config:
+      content: &quot;Predicted: {{ inference.classifier | select('label') }}&quot;
+
+  - id: scores
+    type: data_table
+    config:
+      title: &quot;All Scores&quot;
+      data: &quot;{{ inference.classifier | select('scores') }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<pre><code class="language-yaml">&quot;{{ source | select('field_name') }}&quot;
+</code></pre>
+<h2 id="nested-selection"><a class="header" href="#nested-selection">Nested Selection</a></h2>
+<pre><code class="language-yaml"># Deep field access
+&quot;{{ data | select('user.profile.name') }}&quot;
+
+# Array index
+&quot;{{ data | select('items[0]') }}&quot;
+</code></pre>
+<h2 id="run-26"><a class="header" href="#run-26">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_select
+</code></pre>
+<h2 id="use-cases-2"><a class="header" href="#use-cases-2">Use Cases</a></h2>
+<h3 id="model-output"><a class="header" href="#model-output">Model Output</a></h3>
+<pre><code class="language-yaml">value: &quot;{{ inference.sentiment | select('score') }}&quot;
+</code></pre>
+<h3 id="dataset-column"><a class="header" href="#dataset-column">Dataset Column</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ datasets.users | select('name, email') }}&quot;
+</code></pre>
+<h3 id="state-access"><a class="header" href="#state-access">State Access</a></h3>
+<pre><code class="language-yaml">content: &quot;{{ state | select('user.name') }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="filter"><a class="header" href="#filter">Filter</a></h1>
+<p>Use <code>filter()</code> transform to filter data based on conditions.</p>
+<h2 id="iiur-properties-32"><a class="header" href="#iiur-properties-32">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same condition → same rows</td></tr>
+<tr><td>Usefulness</td><td>Data filtering, search</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic filtering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-26"><a class="header" href="#example-26">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_filter&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-filter-demo&quot;
+
+resources:
+  datasets:
+    sales:
+      type: parquet
+      source: &quot;./data/sales.parquet&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: high-value
+    type: data_table
+    config:
+      title: &quot;High Value Sales (&gt; $1000)&quot;
+      data: &quot;{{ datasets.sales | filter('amount &gt; 1000') }}&quot;
+
+  - id: recent
+    type: data_table
+    config:
+      title: &quot;Recent Sales (last 7 days)&quot;
+      data: &quot;{{ datasets.sales | filter('date &gt;= now() - 7d') }}&quot;
+
+  - id: category-filter
+    type: data_table
+    config:
+      title: &quot;Electronics Only&quot;
+      data: &quot;{{ datasets.sales | filter('category == \&quot;electronics\&quot;') }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="syntax-1"><a class="header" href="#syntax-1">Syntax</a></h2>
+<pre><code class="language-yaml">&quot;{{ source | filter('condition') }}&quot;
+</code></pre>
+<h2 id="operators"><a class="header" href="#operators">Operators</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>==</code></td><td>Equal</td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td></tr>
+<tr><td><code>&gt;</code>, <code>&gt;=</code></td><td>Greater than</td></tr>
+<tr><td><code>&lt;</code>, <code>&lt;=</code></td><td>Less than</td></tr>
+<tr><td><code>&amp;&amp;</code></td><td>AND</td></tr>
+<tr><td>`</td><td></td></tr>
+</tbody></table>
+</div>
+<h2 id="run-27"><a class="header" href="#run-27">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_filter
+</code></pre>
+<h2 id="use-cases-3"><a class="header" href="#use-cases-3">Use Cases</a></h2>
+<h3 id="numeric-comparison"><a class="header" href="#numeric-comparison">Numeric Comparison</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | filter('amount &gt; 1000') }}&quot;
+</code></pre>
+<h3 id="string-match"><a class="header" href="#string-match">String Match</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ users | filter('status == \&quot;active\&quot;') }}&quot;
+</code></pre>
+<h3 id="date-filter"><a class="header" href="#date-filter">Date Filter</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ orders | filter('date &gt;= now() - 7d') }}&quot;
+</code></pre>
+<h3 id="combined-conditions"><a class="header" href="#combined-conditions">Combined Conditions</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ products | filter('price &lt; 100 &amp;&amp; in_stock == true') }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sort--limit"><a class="header" href="#sort--limit">Sort &amp; Limit</a></h1>
+<p>Use <code>sort()</code> and <code>limit()</code> transforms for data ordering and pagination.</p>
+<h2 id="iiur-properties-33"><a class="header" href="#iiur-properties-33">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same params → same order</td></tr>
+<tr><td>Usefulness</td><td>Top-N queries, pagination</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic ordering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-27"><a class="header" href="#example-27">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_sort_limit&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-sort-limit-demo&quot;
+
+resources:
+  datasets:
+    products:
+      type: parquet
+      source: &quot;./data/products.parquet&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: top-sellers
+    type: data_table
+    config:
+      title: &quot;Top 10 Best Sellers&quot;
+      data: &quot;{{ datasets.products | sort('sales_count desc') | limit(10) }}&quot;
+
+  - id: cheapest
+    type: data_table
+    config:
+      title: &quot;5 Cheapest Products&quot;
+      data: &quot;{{ datasets.products | sort('price asc') | limit(5) }}&quot;
+
+  - id: newest
+    type: data_table
+    config:
+      title: &quot;Recently Added&quot;
+      data: &quot;{{ datasets.products | sort('created_at desc') | limit(20) }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="syntax-2"><a class="header" href="#syntax-2">Syntax</a></h2>
+<pre><code class="language-yaml"># Sort ascending
+&quot;{{ data | sort('field asc') }}&quot;
+
+# Sort descending
+&quot;{{ data | sort('field desc') }}&quot;
+
+# Limit rows
+&quot;{{ data | limit(10) }}&quot;
+
+# Combined
+&quot;{{ data | sort('field desc') | limit(10) }}&quot;
+</code></pre>
+<h2 id="run-28"><a class="header" href="#run-28">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_sort_limit
+</code></pre>
+<h2 id="use-cases-4"><a class="header" href="#use-cases-4">Use Cases</a></h2>
+<h3 id="top-n"><a class="header" href="#top-n">Top N</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | sort('revenue desc') | limit(10) }}&quot;
+</code></pre>
+<h3 id="most-recent"><a class="header" href="#most-recent">Most Recent</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ orders | sort('date desc') | limit(5) }}&quot;
+</code></pre>
+<h3 id="pagination"><a class="header" href="#pagination">Pagination</a></h3>
+<pre><code class="language-yaml"># Page 1
+data: &quot;{{ items | limit(20) }}&quot;
+
+# Page 2 (with offset)
+data: &quot;{{ items | offset(20) | limit(20) }}&quot;
+</code></pre>
+<h3 id="multi-field-sort"><a class="header" href="#multi-field-sort">Multi-field Sort</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ products | sort('category asc, price desc') }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="aggregation"><a class="header" href="#aggregation">Aggregation</a></h1>
+<p>Use <code>sum()</code>, <code>mean()</code>, <code>count()</code> transforms for data aggregation.</p>
+<h2 id="iiur-properties-34"><a class="header" href="#iiur-properties-34">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same data → same result</td></tr>
+<tr><td>Usefulness</td><td>Statistics, summaries</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic aggregation</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-28"><a class="header" href="#example-28">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_aggregation&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-aggregation-demo&quot;
+
+resources:
+  datasets:
+    orders:
+      type: parquet
+      source: &quot;./data/orders.parquet&quot;
+
+layout:
+  type: grid
+  columns: 2
+  rows: 2
+  gap: 16
+
+widgets:
+  - id: total-revenue
+    type: markdown
+    position: { row: 0, col: 0 }
+    config:
+      content: &quot;Total Revenue: ${{ datasets.orders | sum('amount') | format(',.2f') }}&quot;
+
+  - id: avg-order
+    type: markdown
+    position: { row: 0, col: 1 }
+    config:
+      content: &quot;Avg Order: ${{ datasets.orders | mean('amount') | format(',.2f') }}&quot;
+
+  - id: order-count
+    type: markdown
+    position: { row: 1, col: 0 }
+    config:
+      content: &quot;Total Orders: {{ datasets.orders | count() }}&quot;
+
+  - id: unique-customers
+    type: markdown
+    position: { row: 1, col: 1 }
+    config:
+      content: &quot;Unique Customers: {{ datasets.orders | count_distinct('customer_id') }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="aggregation-functions"><a class="header" href="#aggregation-functions">Aggregation Functions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>sum('field')</code></td><td>Sum of values</td></tr>
+<tr><td><code>mean('field')</code></td><td>Average</td></tr>
+<tr><td><code>count()</code></td><td>Row count</td></tr>
+<tr><td><code>count_distinct('field')</code></td><td>Unique values</td></tr>
+<tr><td><code>min('field')</code></td><td>Minimum value</td></tr>
+<tr><td><code>max('field')</code></td><td>Maximum value</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-29"><a class="header" href="#run-29">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_aggregation
+</code></pre>
+<h2 id="use-cases-5"><a class="header" href="#use-cases-5">Use Cases</a></h2>
+<h3 id="total"><a class="header" href="#total">Total</a></h3>
+<pre><code class="language-yaml">content: &quot;Total: {{ orders | sum('amount') }}&quot;
+</code></pre>
+<h3 id="average"><a class="header" href="#average">Average</a></h3>
+<pre><code class="language-yaml">content: &quot;Average: {{ scores | mean('value') }}&quot;
+</code></pre>
+<h3 id="count"><a class="header" href="#count">Count</a></h3>
+<pre><code class="language-yaml">content: &quot;Items: {{ items | count() }}&quot;
+</code></pre>
+<h3 id="group-by"><a class="header" href="#group-by">Group By</a></h3>
+<pre><code class="language-yaml">data: &quot;{{ sales | group_by('category') | sum('revenue') }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="format"><a class="header" href="#format">Format</a></h1>
+<p>Use <code>format()</code> and <code>join()</code> transforms for string formatting.</p>
+<h2 id="iiur-properties-35"><a class="header" href="#iiur-properties-35">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - doesn't mutate source</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same format → same output</td></tr>
+<tr><td>Usefulness</td><td>Display formatting, localization</td></tr>
+<tr><td>Reproducibility</td><td>Deterministic formatting</td></tr>
+</tbody></table>
+</div>
+<h2 id="example-29"><a class="header" href="#example-29">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;expression_format&quot;)?;
+
+    let yaml = r#&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;expression-format-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+  gap: 16
+
+widgets:
+  - id: currency
+    type: markdown
+    config:
+      content: &quot;Price: {{ state.price | format('$,.2f') }}&quot;
+
+  - id: percentage
+    type: markdown
+    config:
+      content: &quot;Discount: {{ state.discount | percentage }}%&quot;
+
+  - id: date-format
+    type: markdown
+    config:
+      content: &quot;Date: {{ state.timestamp | date('MMMM D, YYYY') }}&quot;
+
+  - id: list-join
+    type: markdown
+    config:
+      content: &quot;Tags: {{ state.tags | join(', ') }}&quot;
+
+  - id: truncate
+    type: markdown
+    config:
+      content: &quot;{{ state.description | truncate(100) }}...&quot;
+
+  - id: uppercase
+    type: markdown
+    config:
+      content: &quot;{{ state.title | uppercase }}&quot;
+&quot;#;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="format-functions"><a class="header" href="#format-functions">Format Functions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Function</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>format('spec')</code></td><td>Number formatting</td></tr>
+<tr><td><code>percentage</code></td><td>As percentage (0-100)</td></tr>
+<tr><td><code>date('pattern')</code></td><td>Date formatting</td></tr>
+<tr><td><code>join('sep')</code></td><td>Join array</td></tr>
+<tr><td><code>truncate(n)</code></td><td>Limit characters</td></tr>
+<tr><td><code>uppercase</code></td><td>Uppercase</td></tr>
+<tr><td><code>lowercase</code></td><td>Lowercase</td></tr>
+</tbody></table>
+</div>
+<h2 id="run-30"><a class="header" href="#run-30">Run</a></h2>
+<pre><code class="language-bash">cargo run --example expression_format
+</code></pre>
+<h2 id="number-formatting"><a class="header" href="#number-formatting">Number Formatting</a></h2>
+<pre><code class="language-yaml"># Currency
+&quot;{{ price | format('$,.2f') }}&quot;  # $1,234.56
+
+# Percentage
+&quot;{{ ratio | percentage }}&quot;  # 75%
+
+# Fixed decimals
+&quot;{{ value | format('.3f') }}&quot;  # 1.234
+</code></pre>
+<h2 id="date-formatting"><a class="header" href="#date-formatting">Date Formatting</a></h2>
+<pre><code class="language-yaml"># Full date
+&quot;{{ date | date('MMMM D, YYYY') }}&quot;  # January 15, 2024
+
+# Short date
+&quot;{{ date | date('MM/DD/YY') }}&quot;  # 01/15/24
+
+# ISO
+&quot;{{ date | date('YYYY-MM-DD') }}&quot;  # 2024-01-15
+</code></pre>
+<h2 id="string-transforms"><a class="header" href="#string-transforms">String Transforms</a></h2>
+<pre><code class="language-yaml"># Join array
+&quot;{{ tags | join(', ') }}&quot;  # &quot;tag1, tag2, tag3&quot;
+
+# Truncate
+&quot;{{ text | truncate(50) }}&quot;  # &quot;First 50 characters...&quot;
+
+# Case
+&quot;{{ title | uppercase }}&quot;
+&quot;{{ title | lowercase }}&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="api-documentation"><a class="header" href="#api-documentation">API Documentation</a></h1>
 <h2 id="core-types"><a class="header" href="#core-types">Core Types</a></h2>
 <h3 id="scene"><a class="header" href="#scene">Scene</a></h3>
@@ -851,7 +3970,7 @@ All public items documented</li>
 <li><input disabled="" type="checkbox" checked=""/>
 Property-based tests exist</li>
 </ul>
-<h3 id="security"><a class="header" href="#security">Security</a></h3>
+<h3 id="security-1"><a class="header" href="#security-1">Security</a></h3>
 <ul>
 <li><input disabled="" type="checkbox" checked=""/>
 No hardcoded secrets</li>

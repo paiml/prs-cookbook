@@ -180,6 +180,75 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="dark-preset"><a class="header" href="#dark-preset">Dark Preset</a></h1>
+<p>Apply dark theme preset to scenes.</p>
+<h2 id="iiur-properties"><a class="header" href="#iiur-properties">IIUR Properties</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Isolation</td><td>Full - theme is independent</td></tr>
+<tr><td>Idempotency</td><td>Guaranteed - same config → same appearance</td></tr>
+<tr><td>Usefulness</td><td>Dark mode UI, reduced eye strain</td></tr>
+<tr><td>Reproducibility</td><td>Consistent dark theme rendering</td></tr>
+</tbody></table>
+</div>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<pre><code class="language-rust">use prs_cookbook::prelude::*;
+
+fn main() -&gt; Result&lt;()&gt; {
+    let ctx = RecipeContext::new(&quot;theme_preset_dark&quot;)?;
+
+    let yaml = r##&quot;
+prs_version: &quot;1.0&quot;
+
+metadata:
+  name: &quot;dark-theme-demo&quot;
+
+layout:
+  type: flex
+  direction: column
+
+widgets:
+  - id: title
+    type: markdown
+    config:
+      content: &quot;# Dark Theme Demo&quot;
+
+  - id: description
+    type: markdown
+    config:
+      content: &quot;This scene uses the dark theme preset&quot;
+
+theme:
+  preset: &quot;dark&quot;
+&quot;##;
+
+    let scene = Scene::from_yaml(yaml)?;
+    scene.validate()?;
+
+    ctx.report(&amp;scene)?;
+    Ok(())
+}</code></pre>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<pre><code class="language-yaml">theme:
+  preset: &quot;dark&quot;
+</code></pre>
+<h2 id="dark-theme-colors"><a class="header" href="#dark-theme-colors">Dark Theme Colors</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Token</th><th>Default Value</th></tr></thead><tbody>
+<tr><td><code>background</code></td><td><code>#1a1a2e</code></td></tr>
+<tr><td><code>surface</code></td><td><code>#16213e</code></td></tr>
+<tr><td><code>primary</code></td><td><code>#0f3460</code></td></tr>
+<tr><td><code>text</code></td><td><code>#e8e8e8</code></td></tr>
+<tr><td><code>error</code></td><td><code>#e74c3c</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="run"><a class="header" href="#run">Run</a></h2>
+<pre><code class="language-bash">cargo run --example theme_preset_dark
+</code></pre>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h2>
+<ul>
+<li>Low-light environments</li>
+<li>Reducing eye strain</li>
+<li>OLED screen optimization</li>
+<li>User preference</li>
+</ul>
 
                     </main>
 
