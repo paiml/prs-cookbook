@@ -1,0 +1,157 @@
+[package]
+name = "prs-cookbook"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT"
+description = "Cookbook examples for Presentar Scene Format (.prs) - Isolated, Idempotent, Useful, and Reproducible recipes"
+repository = "https://github.com/paiml/prs-cookbook"
+keywords = ["presentar", "visualization", "wasm", "declarative-ui"]
+categories = ["visualization", "wasm"]
+
+[features]
+default = []
+browser = ["wasm-bindgen", "console_error_panic_hook"]
+cli = ["clap"]
+presentar = []
+full = ["browser", "cli", "presentar"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+thiserror = "2.0"
+tempfile = "3.14"
+
+# Optional dependencies
+wasm-bindgen = { version = "0.2", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+clap = { version = "4.5", features = ["derive"], optional = true }
+
+[dev-dependencies]
+proptest = "1.5"
+pretty_assertions = "1.4"
+
+[[example]]
+name = "create_minimal_scene"
+path = "examples/a_scene_creation/create_minimal_scene.rs"
+
+[[example]]
+name = "create_grid_layout"
+path = "examples/a_scene_creation/create_grid_layout.rs"
+
+[[example]]
+name = "create_flex_layout"
+path = "examples/a_scene_creation/create_flex_layout.rs"
+
+[[example]]
+name = "create_absolute_layout"
+path = "examples/a_scene_creation/create_absolute_layout.rs"
+
+[[example]]
+name = "create_nested_layouts"
+path = "examples/a_scene_creation/create_nested_layouts.rs"
+
+[[example]]
+name = "widget_text_input"
+path = "examples/b_widget_config/widget_text_input.rs"
+
+[[example]]
+name = "widget_slider"
+path = "examples/b_widget_config/widget_slider.rs"
+
+[[example]]
+name = "widget_dropdown"
+path = "examples/b_widget_config/widget_dropdown.rs"
+
+[[example]]
+name = "widget_charts"
+path = "examples/b_widget_config/widget_charts.rs"
+
+[[example]]
+name = "widget_data_table"
+path = "examples/b_widget_config/widget_data_table.rs"
+
+[[example]]
+name = "resource_local_model"
+path = "examples/c_resources/resource_local_model.rs"
+
+[[example]]
+name = "resource_remote_model"
+path = "examples/c_resources/resource_remote_model.rs"
+
+[[example]]
+name = "resource_dataset"
+path = "examples/c_resources/resource_dataset.rs"
+
+[[example]]
+name = "resource_fallback_sources"
+path = "examples/c_resources/resource_fallback_sources.rs"
+
+[[example]]
+name = "binding_simple_update"
+path = "examples/d_bindings/binding_simple_update.rs"
+
+[[example]]
+name = "binding_debounced"
+path = "examples/d_bindings/binding_debounced.rs"
+
+[[example]]
+name = "binding_model_inference"
+path = "examples/d_bindings/binding_model_inference.rs"
+
+[[example]]
+name = "binding_chain_actions"
+path = "examples/d_bindings/binding_chain_actions.rs"
+
+[[example]]
+name = "binding_conditional"
+path = "examples/d_bindings/binding_conditional.rs"
+
+[[example]]
+name = "theme_preset_dark"
+path = "examples/e_theming/theme_preset_dark.rs"
+
+[[example]]
+name = "theme_preset_light"
+path = "examples/e_theming/theme_preset_light.rs"
+
+[[example]]
+name = "theme_custom_colors"
+path = "examples/e_theming/theme_custom_colors.rs"
+
+[[example]]
+name = "theme_custom_fonts"
+path = "examples/e_theming/theme_custom_fonts.rs"
+
+[[example]]
+name = "permission_network"
+path = "examples/f_permissions/permission_network.rs"
+
+[[example]]
+name = "permission_filesystem"
+path = "examples/f_permissions/permission_filesystem.rs"
+
+[[example]]
+name = "permission_minimal"
+path = "examples/f_permissions/permission_minimal.rs"
+
+[[example]]
+name = "expression_select"
+path = "examples/g_expressions/expression_select.rs"
+
+[[example]]
+name = "expression_filter"
+path = "examples/g_expressions/expression_filter.rs"
+
+[[example]]
+name = "expression_sort_limit"
+path = "examples/g_expressions/expression_sort_limit.rs"
+
+[[example]]
+name = "expression_aggregation"
+path = "examples/g_expressions/expression_aggregation.rs"
+
+[[example]]
+name = "expression_format"
+path = "examples/g_expressions/expression_format.rs"
